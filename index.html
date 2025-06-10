@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VPLY Telephone Diary</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+      background-color: #e0c097;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    .login-screen, .main-app {
+      display: none;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #4b2e12;
+    }
+    input, button, select, textarea {
+      padding: 8px;
+      margin: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #999;
+      text-align: left;
+    }
+    .product-list input {
+      width: 85%;
+    }
+    .delete-btn, .edit-btn {
+      color: red;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body onload="showLoginScreen()">
+
+<div class="container login-screen" id="login-screen">
+  <h2>Enter Password to Access</h2>
+  <input type="password" id="passwordInput" placeholder="Enter Password"/>
+  <button onclick="checkPassword()">Enter</button>
+</div>
+
+<div class="container main-app" id="main-app">
+  <img src="vplylogo.jpg" alt="Logo" style="max-width: 150px; display: block; margin: auto;">
+  <h1>VPLY TELEPHONE DIARY</h1>
+
+  <input type="text" id="search" placeholder="Search by any field..." oninput="searchEntries()"/>
+
+  <h2>Enter Company Details</h2>
+  <input id="company" placeholder="Company Name" />
+  <input id="category" placeholder="Category" />
+  <input id="brand" placeholder="Brand" />
+
+  <div id="product-fields">
+    <h3>Brand Products (Max 10)</h3>
+  </div>
+  <button onclick="addProductField()">Add Product</button>
+
+  <input id="address" placeholder="Company Address" />
+  <input id="owner" placeholder="Owner Name" />
+  <input id="ownerPhone" placeholder="Owner Phone" />
+  <input id="salesman" placeholder="Salesman Name" />
+  <input id="salesmanPhone" placeholder="Salesman Phone" />
+  <input id="godown" placeholder="Godown No." />
+  <input id="gst" placeholder="GST No." />
+  <input type="file" accept="image/*" id="cardImage" capture="environment"/>
+
+  <button onclick="saveData()">Save Entry</button>
+
+  <h2>Manage Entries</h2>
+  <div id="data-table"></div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
+    authDomain: "vply-centre.firebaseapp.com",
+    databaseURL: "https://vply-centre-default-rtdb.firebaseio.com",
+    projectId: "vply-centre",
+    storageBucket: "vply-centre.appspot.com",
+    messagingSenderId: "180899405669",
+    appId: "1:180899405669:web:571820a646057e91accb8c",
+    measurementId: "G-J111EL8EMJ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let productCount = 0;
+
+  function showLoginScreen() {
+    document.getElementById("login-screen").style.display = "block";
+  }
+
+  function checkPassword() {
+    const pass = document.getElementById('passwordInput').value;
+    if (pass === "Vply@1") {
+      document.getElementById('login-screen').style.display = "none";
+      document.getElementById('main-app').style.display = "block";
+      fetchData();
+    } else {
+      alert("Wrong password!");
+    }
+  }
+
+  function addProductField() {
+    if (productCount >= 10) return alert("Max 10 products!");
+    const id = `product${productCount}`;
+    const div = document.createElement("div");
+    div.className = "product-list";
+    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount + 1}" />
+                     <span class="delete-btn" onclick="this.parentNode.remove();">❌</span>`;
+    document.getElementById("product-fields").appendChild(div);
+    productCount++;
+  }
+
+  function saveData() {
+    const products = [];
+    for (let i = 0; i < productCount; i++) {
+      const input = document.getElementById(`product${i}`);
+      if (input && input.value) products.push(input.value);
+    }
+    const data = {
+      company: company.value,
+      category: category.value,
+      brand: brand.value,
+      products: products,
+      address: address.value,
+      owner: owner.value,
+      ownerPhone: ownerPhone.value,
+      salesman: salesman.value,
+      salesmanPhone: salesmanPhone.value,
+      godown: godown.value,
+      gst: gst.value,
+    };
+    const file = document.getElementById("cardImage").files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        data.cardImage = reader.result;
+        db.ref("entries").push(data);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      db.ref("entries").push(data);
+    }
+    alert("Saved!");
+    clearForm();
+  }
+
+  function clearForm() {
+    ['company','category','brand','address','owner','ownerPhone','salesman','salesmanPhone','godown','gst'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById("product-fields").innerHTML = "";
+    productCount = 0;
+    document.getElementById("cardImage").value = "";
+  }
+
+  function fetchData() {
+    db.ref("entries").on("value", (snapshot) => {
+      const table = document.createElement("table");
+      const header = `<tr>
+        <th>Company</th><th>Brand</th><th>Products</th><th>Owner</th><th>Edit</th><th>Delete</th>
+      </tr>`;
+      table.innerHTML = header;
+      const data = snapshot.val();
+      if (data) {
+        Object.entries(data).forEach(([key, val]) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td contenteditable="true" onblur="updateField('${key}', 'company', this.innerText)">${val.company}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'brand', this.innerText)">${val.brand}</td>
+            <td>
+              ${(val.products || []).map((p, i) => `
+                <div contenteditable="true" onblur="updateProduct('${key}', ${i}, this.innerText)">${p} 
+                  <span class="delete-btn" onclick="deleteProduct('${key}', ${i})">❌</span>
+                </div>
+              `).join('')}
+            </td>
+            <td contenteditable="true" onblur="updateField('${key}', 'owner', this.innerText)">${val.owner}</td>
+            <td><button onclick="fetchData()">Refresh</button></td>
+            <td><button onclick="deleteEntry('${key}')">Delete</button></td>
+          `;
+          table.appendChild(row);
+        });
+      }
+      document.getElementById("data-table").innerHTML = "";
+      document.getElementById("data-table").appendChild(table);
+    });
+  }
+
+  function updateField(key, field, value) {
+    db.ref(`entries/${key}/${field}`).set(value);
+  }
+
+  function updateProduct(key, index, newValue) {
+    db.ref(`entries/${key}/products`).once('value', snapshot => {
+      const arr = snapshot.val() || [];
+      arr[index] = newValue;
+      db.ref(`entries/${key}/products`).set(arr);
+    });
+  }
+
+  function deleteProduct(key, index) {
+    db.ref(`entries/${key}/products`).once('value', snapshot => {
+      const arr = snapshot.val() || [];
+      arr.splice(index, 1);
+      db.ref(`entries/${key}/products`).set(arr);
+    });
+  }
+
+  function deleteEntry(key) {
+    if (confirm("Delete this entry?")) {
+      db.ref("entries/" + key).remove();
+    }
+  }
+
+  function searchEntries() {
+    const query = document.getElementById("search").value.toLowerCase();
+    const rows = document.querySelectorAll("#data-table table tr");
+    rows.forEach((row, index) => {
+      if (index === 0) return; // skip header
+      row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+    });
+  }
+</script>
+
+</body>
+</html>
