@@ -42,7 +42,6 @@
       padding: 8px;
       border: 1px solid #999;
       text-align: left;
-      vertical-align: top;
     }
     .product-list input {
       width: 85%;
@@ -52,8 +51,8 @@
       cursor: pointer;
     }
     img.card-preview {
-      width: 80px;
-      height: auto;
+      max-width: 100px;
+      display: block;
     }
   </style>
 </head>
@@ -186,10 +185,7 @@
     db.ref("entries").on("value", (snapshot) => {
       const table = document.createElement("table");
       const header = `<tr>
-        <th>Company</th><th>Category</th><th>Brand</th><th>Products</th>
-        <th>Address</th><th>Owner</th><th>Owner Phone</th>
-        <th>Salesman</th><th>Salesman Phone</th><th>Godown</th>
-        <th>GST</th><th>Card</th><th>Edit</th><th>Delete</th>
+        <th>Company</th><th>Category</th><th>Brand</th><th>Products</th><th>Address</th><th>Owner</th><th>Owner Phone</th><th>Salesman</th><th>Salesman Phone</th><th>Godown</th><th>GST</th><th>Card</th><th>Refresh</th><th>Delete</th>
       </tr>`;
       table.innerHTML = header;
       const data = snapshot.val();
@@ -197,27 +193,23 @@
         Object.entries(data).forEach(([key, val]) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td contenteditable="true" onblur="updateField('${key}', 'company', this.innerText)">${val.company || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'category', this.innerText)">${val.category || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'brand', this.innerText)">${val.brand || ''}</td>
-            <td>
-              ${(val.products || []).map((p, i) => `
-                <div contenteditable="true" onblur="updateProduct('${key}', ${i}, this.innerText)">
-                  ${p} <span class="delete-btn" onclick="deleteProduct('${key}', ${i})">❌</span>
-                </div>
-              `).join('')}
-            </td>
-            <td contenteditable="true" onblur="updateField('${key}', 'address', this.innerText)">${val.address || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'owner', this.innerText)">${val.owner || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'ownerPhone', this.innerText)">${val.ownerPhone || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'salesman', this.innerText)">${val.salesman || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'salesmanPhone', this.innerText)">${val.salesmanPhone || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'godown', this.innerText)">${val.godown || ''}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'gst', this.innerText)">${val.gst || ''}</td>
-            <td>${val.cardImage ? `<img class="card-preview" src="${val.cardImage}" />` : 'N/A'}</td>
-            <td><button onclick="fetchData()">🔄</button></td>
-            <td><button onclick="deleteEntry('${key}')">❌</button></td>
-          `;
+            <td contenteditable="true" onblur="updateField('${key}', 'company', this.innerText)">${val.company}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'category', this.innerText)">${val.category}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'brand', this.innerText)">${val.brand}</td>
+            <td>${(val.products || []).map((p, i) => `
+              <div contenteditable="true" onblur="updateProduct('${key}', ${i}, this.innerText)">${p}
+                <span class="delete-btn" onclick="deleteProduct('${key}', ${i})">❌</span>
+              </div>`).join('')}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'address', this.innerText)">${val.address}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'owner', this.innerText)">${val.owner}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'ownerPhone', this.innerText)">${val.ownerPhone}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'salesman', this.innerText)">${val.salesman}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'salesmanPhone', this.innerText)">${val.salesmanPhone}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'godown', this.innerText)">${val.godown}</td>
+            <td contenteditable="true" onblur="updateField('${key}', 'gst', this.innerText)">${val.gst}</td>
+            <td>${val.cardImage ? `<img class="card-preview" src="${val.cardImage}" />` : ''}</td>
+            <td><button onclick="fetchData()">↻</button></td>
+            <td><button onclick="deleteEntry('${key}')">❌</button></td>`;
           table.appendChild(row);
         });
       }
