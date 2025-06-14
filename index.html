@@ -253,6 +253,54 @@
     });
   }
 </script>
+<script>
+document.getElementById('form')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const products = [];
+  for (let i = 0; i < 10; i++) {
+    const input = document.getElementById(`product${i}`);
+    products.push(input ? input.value : "");
+  }
+
+  const data = {
+    company: document.getElementById('company').value,
+    category: document.getElementById('category').value,
+    brand: document.getElementById('brand').value,
+    product1: products[0],
+    product2: products[1],
+    product3: products[2],
+    product4: products[3],
+    product5: products[4],
+    product6: products[5],
+    product7: products[6],
+    product8: products[7],
+    product9: products[8],
+    product10: products[9],
+    address: document.getElementById('address').value,
+    ownername: document.getElementById('owner').value,
+    ownerphone: document.getElementById('ownerPhone').value,
+    salesmanname: document.getElementById('salesman').value,
+    salesmanphone: document.getElementById('salesmanPhone').value,
+    godown: document.getElementById('godown').value,
+    gst: document.getElementById('gst').value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    alert("✅ Data also saved to Google Sheet!");
+  })
+  .catch((error) => {
+    alert("❌ Failed to save to Google Sheet.");
+    console.error("Error:", error);
+  });
+});
+</script>
 
 </body>
 </html>
