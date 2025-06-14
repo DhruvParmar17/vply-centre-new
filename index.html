@@ -69,7 +69,6 @@
   <h1>VPLY TELEPHONE DIARY</h1>
 
   <input type="text" id="search" placeholder="Search by any field..." oninput="searchEntries()"/>
-
   <h2>Enter Company Details</h2>
   <input id="company" placeholder="Company Name" />
   <input id="category" placeholder="Category" />
@@ -106,12 +105,10 @@
     projectId: "vply-centre",
     storageBucket: "vply-centre.appspot.com",
     messagingSenderId: "180899405669",
-    appId: "1:180899405669:web:571820a646057e91accb8c",
-    measurementId: "G-J111EL8EMJ"
+    appId: "1:180899405669:web:571820a646057e91accb8c"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-
   let productCount = 0;
 
   function showLoginScreen() {
@@ -139,13 +136,13 @@
     document.getElementById("product-fields").appendChild(div);
     productCount++;
   }
-
   function saveData() {
     const products = [];
-    for (let i = 0; i < productCount; i++) {
+    for (let i = 0; i < 10; i++) {
       const input = document.getElementById(`product${i}`);
-      if (input && input.value) products.push(input.value);
+      products.push(input ? input.value : "");
     }
+
     const data = {
       company: company.value,
       category: category.value,
@@ -157,21 +154,59 @@
       salesman: salesman.value,
       salesmanPhone: salesmanPhone.value,
       godown: godown.value,
-      gst: gst.value,
+      gst: gst.value
     };
-    const file = document.getElementById("cardImage").files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function () {
-        data.cardImage = reader.result;
-        db.ref("entries").push(data);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      db.ref("entries").push(data);
-    }
-    alert("Saved!");
+
+    const flatData = {
+      company: data.company,
+      category: data.category,
+      brand: data.brand,
+      product1: products[0],
+      product2: products[1],
+      product3: products[2],
+      product4: products[3],
+      product5: products[4],
+      product6: products[5],
+      product7: products[6],
+      product8: products[7],
+      product9: products[8],
+      product10: products[9],
+      address: data.address,
+      ownername: data.owner,
+      ownerphone: data.ownerPhone,
+      salesmanname: data.salesman,
+      salesmanphone: data.salesmanPhone,
+      godown: data.godown,
+      gst: data.gst
+    };
+
+    db.ref("entries").push(data, () => {
+      fetchData();
+      sendToSheet(flatData);
+    });
+
+    alert("✅ Saved!");
     clearForm();
+  }
+
+  function sendToSheet(data) {
+    fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+  }
+
+  function syncSheet() {
+    db.ref("entries").once("value", (snapshot) => {
+      fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sync: true, entries: snapshot.val() })
+      });
+    });
   }
 
   function clearForm() {
@@ -185,7 +220,7 @@
     db.ref("entries").on("value", (snapshot) => {
       const table = document.createElement("table");
       const header = `<tr>
-        <th>Company</th><th>Category</th><th>Brand</th><th>Products</th><th>Address</th><th>Owner</th><th>Owner Phone</th><th>Salesman</th><th>Salesman Phone</th><th>Godown</th><th>GST</th><th>Card</th><th>Refresh</th><th>Delete</th>
+        <th>Company</th><th>Category</th><th>Brand</th><th>Products</th><th>Address</th><th>Owner</th><th>Owner Phone</th><th>Salesman</th><th>Salesman Phone</th><th>Godown</th><th>GST</th><th>Delete</th>
       </tr>`;
       table.innerHTML = header;
       const data = snapshot.val();
@@ -193,22 +228,17 @@
         Object.entries(data).forEach(([key, val]) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td contenteditable="true" onblur="updateField('${key}', 'company', this.innerText)">${val.company}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'category', this.innerText)">${val.category}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'brand', this.innerText)">${val.brand}</td>
-            <td>${(val.products || []).map((p, i) => `
-              <div contenteditable="true" onblur="updateProduct('${key}', ${i}, this.innerText)">${p}
-                <span class="delete-btn" onclick="deleteProduct('${key}', ${i})">❌</span>
-              </div>`).join('')}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'address', this.innerText)">${val.address}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'owner', this.innerText)">${val.owner}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'ownerPhone', this.innerText)">${val.ownerPhone}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'salesman', this.innerText)">${val.salesman}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'salesmanPhone', this.innerText)">${val.salesmanPhone}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'godown', this.innerText)">${val.godown}</td>
-            <td contenteditable="true" onblur="updateField('${key}', 'gst', this.innerText)">${val.gst}</td>
-            <td>${val.cardImage ? `<img class="card-preview" src="${val.cardImage}" />` : ''}</td>
-            <td><button onclick="fetchData()">↻</button></td>
+            <td>${val.company}</td>
+            <td>${val.category}</td>
+            <td>${val.brand}</td>
+            <td>${(val.products || []).join(", ")}</td>
+            <td>${val.address}</td>
+            <td>${val.owner}</td>
+            <td>${val.ownerPhone}</td>
+            <td>${val.salesman}</td>
+            <td>${val.salesmanPhone}</td>
+            <td>${val.godown}</td>
+            <td>${val.gst}</td>
             <td><button onclick="deleteEntry('${key}')">❌</button></td>`;
           table.appendChild(row);
         });
@@ -218,29 +248,12 @@
     });
   }
 
-  function updateField(key, field, value) {
-    db.ref(`entries/${key}/${field}`).set(value);
-  }
-
-  function updateProduct(key, index, newValue) {
-    db.ref(`entries/${key}/products`).once('value', snapshot => {
-      const arr = snapshot.val() || [];
-      arr[index] = newValue;
-      db.ref(`entries/${key}/products`).set(arr);
-    });
-  }
-
-  function deleteProduct(key, index) {
-    db.ref(`entries/${key}/products`).once('value', snapshot => {
-      const arr = snapshot.val() || [];
-      arr.splice(index, 1);
-      db.ref(`entries/${key}/products`).set(arr);
-    });
-  }
-
   function deleteEntry(key) {
     if (confirm("Delete this entry?")) {
-      db.ref("entries/" + key).remove();
+      db.ref("entries/" + key).remove(() => {
+        fetchData();
+        syncSheet(); // also re-sync Google Sheet
+      });
     }
   }
 
@@ -253,54 +266,5 @@
     });
   }
 </script>
-<script>
-document.getElementById('form')?.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const products = [];
-  for (let i = 0; i < 10; i++) {
-    const input = document.getElementById(`product${i}`);
-    products.push(input ? input.value : "");
-  }
-
-  const data = {
-    company: document.getElementById('company').value,
-    category: document.getElementById('category').value,
-    brand: document.getElementById('brand').value,
-    product1: products[0],
-    product2: products[1],
-    product3: products[2],
-    product4: products[3],
-    product5: products[4],
-    product6: products[5],
-    product7: products[6],
-    product8: products[7],
-    product9: products[8],
-    product10: products[9],
-    address: document.getElementById('address').value,
-    ownername: document.getElementById('owner').value,
-    ownerphone: document.getElementById('ownerPhone').value,
-    salesmanname: document.getElementById('salesman').value,
-    salesmanphone: document.getElementById('salesmanPhone').value,
-    godown: document.getElementById('godown').value,
-    gst: document.getElementById('gst').value
-  };
-
-  fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    alert("✅ Data also saved to Google Sheet!");
-  })
-  .catch((error) => {
-    alert("❌ Failed to save to Google Sheet.");
-    console.error("Error:", error);
-  });
-});
-</script>
-
 </body>
 </html>
