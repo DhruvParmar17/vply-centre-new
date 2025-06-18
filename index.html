@@ -33,45 +33,65 @@
       box-sizing: border-box;
       border-radius: 5px;
     }
-    .field-group {
-      display: flex;
-      align-items: center;
+    .product-list input {
+      width: 85%;
     }
-    .field-group input {
-      flex: 1;
-    }
-    .delete-btn, .save-btn {
+    .delete-btn {
+      color: red;
       cursor: pointer;
-      margin-left: 8px;
     }
-    .popup {
-      position: fixed;
-      top: 10%;
-      left: 5%;
-      right: 5%;
-      max-height: 80%;
-      overflow: auto;
-      background: white;
-      border: 2px solid black;
-      padding: 20px;
-      z-index: 9999;
+    .copy-btn {
+      color: green;
+      font-size: 14px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    a.tel-link {
+      text-decoration: none;
+      color: blue;
     }
   </style>
 </head>
 <body onload="showLoginScreen()">
+
 <div class="container login-screen" id="login-screen">
   <h2>Enter Password to Access</h2>
   <input type="password" id="passwordInput" placeholder="Enter Password"/>
   <button onclick="checkPassword()">Enter</button>
 </div>
+
 <div class="container main-app" id="main-app">
   <img src="https://raw.githubusercontent.com/dhruvparmar17/vply-centre/main/assets/vplylogo.jpg" alt="Logo" style="max-width: 150px; display: block; margin: auto;">
   <h1>VPLY TELEPHONE DIARY</h1>
+
   <input type="text" id="search" placeholder="Search by any field..."/>
   <button onclick="searchEntries()">🔍 Search</button>
+
+  <h2>Enter Company Details</h2>
+  <input id="company" placeholder="Company Name" />
+  <input id="category" placeholder="Category" />
+  <input id="brand" placeholder="Brand" />
+
+  <div id="product-fields">
+    <h3>Brand Products (Max 10)</h3>
+  </div>
+  <button onclick="addProductField()">Add Product</button>
+
+  <input id="address" placeholder="Company Address" />
+  <input id="owner" placeholder="Owner Name" />
+  <input id="ownerPhone" placeholder="Owner Phone" />
+  <input id="salesman" placeholder="Salesman Name" />
+  <input id="salesmanPhone" placeholder="Salesman Phone" />
+  <input id="godown" placeholder="Godown No." />
+  <input id="gst" placeholder="GST No." />
+  <input type="file" accept="image/*" id="cardImage" capture="environment"/>
+
+  <button onclick="saveData()">Save Entry</button>
 </div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
@@ -84,6 +104,7 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  let productCount = 0;
 
   function showLoginScreen() {
     document.getElementById("login-screen").style.display = "block";
@@ -99,58 +120,120 @@
     }
   }
 
+  function addProductField() {
+    if (productCount >= 10) return alert("Max 10 products!");
+    const id = `product${productCount}`;
+    const div = document.createElement("div");
+    div.className = "product-list";
+    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount + 1}" />
+                     <span class="delete-btn" onclick="this.parentNode.remove();">❌</span>`;
+    document.getElementById("product-fields").appendChild(div);
+    productCount++;
+  }
+
+  function saveData() {
+    const products = [];
+    for (let i = 0; i < 10; i++) {
+      const input = document.getElementById(`product${i}`);
+      if (input) products.push(input.value);
+    }
+
+    const data = {
+      company: document.getElementById("company").value,
+      category: document.getElementById("category").value,
+      brand: document.getElementById("brand").value,
+      products: products,
+      address: document.getElementById("address").value,
+      owner: document.getElementById("owner").value,
+      ownerPhone: document.getElementById("ownerPhone").value,
+      salesman: document.getElementById("salesman").value,
+      salesmanPhone: document.getElementById("salesmanPhone").value,
+      godown: document.getElementById("godown").value,
+      gst: document.getElementById("gst").value
+    };
+
+    db.ref("entries").push(data, () => {
+      alert("✅ Saved to Firebase!");
+      sendToSheet(data);
+      clearForm();
+    });
+  }
+
+  function sendToSheet(data) {
+    fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+  }
+
+  function clearForm() {
+    ['company','category','brand','address','owner','ownerPhone','salesman','salesmanPhone','godown','gst'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById("product-fields").innerHTML = "";
+    productCount = 0;
+    document.getElementById("cardImage").value = "";
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Copied: " + text);
+    });
+  }
+
+  function deleteEntry(key, btnElement) {
+    if (confirm("Are you sure you want to delete this entry?")) {
+      db.ref("entries/" + key).remove(() => {
+        alert("🗑️ Entry deleted.");
+        btnElement.parentNode.remove();
+      });
+    }
+  }
+
   function searchEntries() {
     const query = document.getElementById("search").value.toLowerCase().trim();
     if (!query) return alert("Please type something to search.");
+
     db.ref("entries").once("value", (snapshot) => {
       const data = snapshot.val();
       let found = [];
+
       if (data) {
         Object.entries(data).forEach(([key, entry]) => {
           const matchContent = Object.values(entry).join(" ").toLowerCase();
           if (matchContent.includes(query)) {
-            let section = `<div class='entry' id='entry-${key}'>`;
-            for (let field in entry) {
-              if (Array.isArray(entry[field])) {
-                entry[field].forEach((p, i) => {
-                  section += `<div class='field-group'>Product ${i+1}: <input value='${p}' onchange='updateField("${key}", "products/${i}", this.value)'/> <span class='delete-btn' onclick='deleteField("${key}", "products/${i}")'>🗑️</span></div>`;
-                });
-              } else {
-                section += `<div class='field-group'>${field}: <input value='${entry[field]}' onchange='updateField("${key}", "${field}", this.value)'/> <span class='delete-btn' onclick='deleteField("${key}", "${field}")'>🗑️</span></div>`;
-              }
-            }
-            section += `<hr></div>`;
-            found.push(section);
+            found.push(`
+<b>📌 Company:</b> ${entry.company}<br>
+<b>📁 Category:</b> ${entry.category}<br>
+<b>🏷️ Brand:</b> ${entry.brand}<br>
+<b>🛒 Products:</b> ${(entry.products || []).join(", ")}<br>
+<b>📍 Address:</b> ${entry.address}<br>
+<b>👤 Owner:</b> ${entry.owner} - 
+<a href="tel:${entry.ownerPhone}" class="tel-link">${entry.ownerPhone}</a>
+<span class="copy-btn" onclick="copyToClipboard('${entry.ownerPhone}')">📋</span><br>
+<b>🧑‍💼 Salesman:</b> ${entry.salesman} - 
+<a href="tel:${entry.salesmanPhone}" class="tel-link">${entry.salesmanPhone}</a>
+<span class="copy-btn" onclick="copyToClipboard('${entry.salesmanPhone}')">📋</span><br>
+<b>🏢 Godown:</b> ${entry.godown}<br>
+<b>🧾 GST:</b> ${entry.gst}<br>
+<button onclick="deleteEntry('${key}', this)">🗑️ Delete</button><hr>`);
           }
         });
       }
+
       const existingPopup = document.getElementById("popupResult");
       if (existingPopup) existingPopup.remove();
+
       if (found.length > 0) {
         const popup = document.createElement("div");
         popup.id = "popupResult";
-        popup.className = "popup";
+        popup.style.cssText = "position:fixed; top:10%; left:5%; right:5%; max-height:80%; overflow:auto; background:white; border:2px solid black; padding:20px; z-index:9999;";
         popup.innerHTML = found.join("") + `<button onclick="this.parentNode.remove()">❌ Close</button>`;
         document.body.appendChild(popup);
       } else {
         alert("❌ No matching entry found.");
       }
     });
-  }
-
-  function updateField(key, fieldPath, newValue) {
-    db.ref("entries/" + key + "/" + fieldPath).set(newValue, () => {
-      alert("✅ Field updated!");
-    });
-  }
-
-  function deleteField(key, fieldPath) {
-    if (confirm("Delete this field?")) {
-      db.ref("entries/" + key + "/" + fieldPath).remove(() => {
-        alert("🗑️ Field deleted!");
-        document.getElementById("popupResult").remove();
-      });
-    }
   }
 </script>
 </body>
