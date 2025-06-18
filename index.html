@@ -33,70 +33,45 @@
       box-sizing: border-box;
       border-radius: 5px;
     }
-    table {
-      width: 100%;
-      margin-top: 10px;
-      border-collapse: collapse;
+    .field-group {
+      display: flex;
+      align-items: center;
     }
-    th, td {
-      padding: 8px;
-      border: 1px solid #999;
-      text-align: left;
+    .field-group input {
+      flex: 1;
     }
-    .product-list input {
-      width: 85%;
-    }
-    .delete-btn, .edit-btn {
-      color: red;
+    .delete-btn, .save-btn {
       cursor: pointer;
+      margin-left: 8px;
     }
-    img.card-preview {
-      max-width: 100px;
-      display: block;
+    .popup {
+      position: fixed;
+      top: 10%;
+      left: 5%;
+      right: 5%;
+      max-height: 80%;
+      overflow: auto;
+      background: white;
+      border: 2px solid black;
+      padding: 20px;
+      z-index: 9999;
     }
   </style>
 </head>
 <body onload="showLoginScreen()">
-
 <div class="container login-screen" id="login-screen">
   <h2>Enter Password to Access</h2>
   <input type="password" id="passwordInput" placeholder="Enter Password"/>
   <button onclick="checkPassword()">Enter</button>
 </div>
-
 <div class="container main-app" id="main-app">
-  <img src="vplylogo.jpg" alt="Logo" style="max-width: 150px; display: block; margin: auto;">
+  <img src="https://raw.githubusercontent.com/dhruvparmar17/vply-centre/main/assets/vplylogo.jpg" alt="Logo" style="max-width: 150px; display: block; margin: auto;">
   <h1>VPLY TELEPHONE DIARY</h1>
-
-  <input type="text" id="search" placeholder="Search by any field..." oninput="searchEntries()"/>
-  <h2>Enter Company Details</h2>
-  <input id="company" placeholder="Company Name" />
-  <input id="category" placeholder="Category" />
-  <input id="brand" placeholder="Brand" />
-
-  <div id="product-fields">
-    <h3>Brand Products (Max 10)</h3>
-  </div>
-  <button onclick="addProductField()">Add Product</button>
-
-  <input id="address" placeholder="Company Address" />
-  <input id="owner" placeholder="Owner Name" />
-  <input id="ownerPhone" placeholder="Owner Phone" />
-  <input id="salesman" placeholder="Salesman Name" />
-  <input id="salesmanPhone" placeholder="Salesman Phone" />
-  <input id="godown" placeholder="Godown No." />
-  <input id="gst" placeholder="GST No." />
-  <input type="file" accept="image/*" id="cardImage" capture="environment"/>
-
-  <button onclick="saveData()">Save Entry</button>
-
-  <h2>Manage Entries</h2>
-  <div id="data-table"></div>
+  <input type="text" id="search" placeholder="Search by any field..."/>
+  <button onclick="searchEntries()">🔍 Search</button>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
@@ -109,7 +84,6 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  let productCount = 0;
 
   function showLoginScreen() {
     document.getElementById("login-screen").style.display = "block";
@@ -120,150 +94,63 @@
     if (pass === "Vply@1") {
       document.getElementById('login-screen').style.display = "none";
       document.getElementById('main-app').style.display = "block";
-      fetchData();
     } else {
       alert("Wrong password!");
     }
   }
 
-  function addProductField() {
-    if (productCount >= 10) return alert("Max 10 products!");
-    const id = `product${productCount}`;
-    const div = document.createElement("div");
-    div.className = "product-list";
-    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount + 1}" />
-                     <span class="delete-btn" onclick="this.parentNode.remove();">❌</span>`;
-    document.getElementById("product-fields").appendChild(div);
-    productCount++;
-  }
-  function saveData() {
-    const products = [];
-    for (let i = 0; i < 10; i++) {
-      const input = document.getElementById(`product${i}`);
-      products.push(input ? input.value : "");
-    }
-
-    const data = {
-      company: company.value,
-      category: category.value,
-      brand: brand.value,
-      products: products,
-      address: address.value,
-      owner: owner.value,
-      ownerPhone: ownerPhone.value,
-      salesman: salesman.value,
-      salesmanPhone: salesmanPhone.value,
-      godown: godown.value,
-      gst: gst.value
-    };
-
-    const flatData = {
-      company: data.company,
-      category: data.category,
-      brand: data.brand,
-      product1: products[0],
-      product2: products[1],
-      product3: products[2],
-      product4: products[3],
-      product5: products[4],
-      product6: products[5],
-      product7: products[6],
-      product8: products[7],
-      product9: products[8],
-      product10: products[9],
-      address: data.address,
-      ownername: data.owner,
-      ownerphone: data.ownerPhone,
-      salesmanname: data.salesman,
-      salesmanphone: data.salesmanPhone,
-      godown: data.godown,
-      gst: data.gst
-    };
-
-    db.ref("entries").push(data, () => {
-      fetchData();
-      sendToSheet(flatData);
-    });
-
-    alert("✅ Saved!");
-    clearForm();
-  }
-
-  function sendToSheet(data) {
-    fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-  }
-
-  function syncSheet() {
+  function searchEntries() {
+    const query = document.getElementById("search").value.toLowerCase().trim();
+    if (!query) return alert("Please type something to search.");
     db.ref("entries").once("value", (snapshot) => {
-      fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sync: true, entries: snapshot.val() })
-      });
-    });
-  }
-
-  function clearForm() {
-    ['company','category','brand','address','owner','ownerPhone','salesman','salesmanPhone','godown','gst'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById("product-fields").innerHTML = "";
-    productCount = 0;
-    document.getElementById("cardImage").value = "";
-  }
-
-  function fetchData() {
-    db.ref("entries").on("value", (snapshot) => {
-      const table = document.createElement("table");
-      const header = `<tr>
-        <th>Company</th><th>Category</th><th>Brand</th><th>Products</th><th>Address</th><th>Owner</th><th>Owner Phone</th><th>Salesman</th><th>Salesman Phone</th><th>Godown</th><th>GST</th><th>Delete</th>
-      </tr>`;
-      table.innerHTML = header;
       const data = snapshot.val();
+      let found = [];
       if (data) {
-        Object.entries(data).forEach(([key, val]) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${val.company}</td>
-            <td>${val.category}</td>
-            <td>${val.brand}</td>
-            <td>${(val.products || []).join(", ")}</td>
-            <td>${val.address}</td>
-            <td>${val.owner}</td>
-            <td>${val.ownerPhone}</td>
-            <td>${val.salesman}</td>
-            <td>${val.salesmanPhone}</td>
-            <td>${val.godown}</td>
-            <td>${val.gst}</td>
-            <td><button onclick="deleteEntry('${key}')">❌</button></td>`;
-          table.appendChild(row);
+        Object.entries(data).forEach(([key, entry]) => {
+          const matchContent = Object.values(entry).join(" ").toLowerCase();
+          if (matchContent.includes(query)) {
+            let section = `<div class='entry' id='entry-${key}'>`;
+            for (let field in entry) {
+              if (Array.isArray(entry[field])) {
+                entry[field].forEach((p, i) => {
+                  section += `<div class='field-group'>Product ${i+1}: <input value='${p}' onchange='updateField("${key}", "products/${i}", this.value)'/> <span class='delete-btn' onclick='deleteField("${key}", "products/${i}")'>🗑️</span></div>`;
+                });
+              } else {
+                section += `<div class='field-group'>${field}: <input value='${entry[field]}' onchange='updateField("${key}", "${field}", this.value)'/> <span class='delete-btn' onclick='deleteField("${key}", "${field}")'>🗑️</span></div>`;
+              }
+            }
+            section += `<hr></div>`;
+            found.push(section);
+          }
         });
       }
-      document.getElementById("data-table").innerHTML = "";
-      document.getElementById("data-table").appendChild(table);
+      const existingPopup = document.getElementById("popupResult");
+      if (existingPopup) existingPopup.remove();
+      if (found.length > 0) {
+        const popup = document.createElement("div");
+        popup.id = "popupResult";
+        popup.className = "popup";
+        popup.innerHTML = found.join("") + `<button onclick="this.parentNode.remove()">❌ Close</button>`;
+        document.body.appendChild(popup);
+      } else {
+        alert("❌ No matching entry found.");
+      }
     });
   }
 
-  function deleteEntry(key) {
-    if (confirm("Delete this entry?")) {
-      db.ref("entries/" + key).remove(() => {
-        fetchData();
-        syncSheet(); // also re-sync Google Sheet
+  function updateField(key, fieldPath, newValue) {
+    db.ref("entries/" + key + "/" + fieldPath).set(newValue, () => {
+      alert("✅ Field updated!");
+    });
+  }
+
+  function deleteField(key, fieldPath) {
+    if (confirm("Delete this field?")) {
+      db.ref("entries/" + key + "/" + fieldPath).remove(() => {
+        alert("🗑️ Field deleted!");
+        document.getElementById("popupResult").remove();
       });
     }
-  }
-
-  function searchEntries() {
-    const query = document.getElementById("search").value.toLowerCase();
-    const rows = document.querySelectorAll("#data-table table tr");
-    rows.forEach((row, index) => {
-      if (index === 0) return;
-      row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
-    });
   }
 </script>
 </body>
