@@ -5,67 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VPLY Telephone Diary</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
-      background-color: #e0c097;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-      background: rgba(255,255,255,0.95);
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    .login-screen, .main-app {
-      display: none;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #4b2e12;
-    }
-    input, button, select, textarea {
-      padding: 8px;
-      margin: 5px;
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 5px;
-    }
-    .product-list input {
-      width: 85%;
-    }
-    .delete-btn {
-      color: red;
-      cursor: pointer;
-    }
-    .copy-btn {
-      color: green;
-      font-size: 14px;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    a.tel-link {
-      text-decoration: none;
-      color: blue;
-    }
+    body { font-family: sans-serif; margin:0; background:url('https://www.transparenttextures.com/patterns/wood-pattern.png'); background-color:#e0c097; }
+    .container { max-width:900px; margin:auto; padding:20px; background:rgba(255,255,255,0.95); border-radius:20px; box-shadow:0 0 15px rgba(0,0,0,0.3); }
+    .login-screen, .main-app { display:none; }
+    h1, h2 { text-align:center; color:#4b2e12; }
+    input, button, select, textarea { padding:8px; margin:5px; width:100%; box-sizing:border-box; border-radius:5px; }
+    .product-list input { width:85%; }
+    .delete-btn { color:red; cursor:pointer; }
+    .copy-btn { color:green; font-size:14px; cursor:pointer; margin-left:5px; }
+    a.tel-link { text-decoration:none; color:blue; }
+    .field-row { margin-bottom:10px; }
+    .delete-field { color:red; cursor:pointer; margin-left:5px; font-size:0.9em; }
   </style>
 </head>
 <body onload="showLoginScreen()">
 
 <div class="container login-screen" id="login-screen">
   <h2>Enter Password to Access</h2>
-  <input type="password" id="passwordInput" placeholder="Enter Password"/>
+  <input type="password" id="passwordInput" placeholder="Enter Password" />
   <button onclick="checkPassword()">Enter</button>
 </div>
 
 <div class="container main-app" id="main-app">
-  <img src="https://raw.githubusercontent.com/dhruvparmar17/vply-centre/main/assets/vplylogo.jpg" alt="Logo" style="max-width: 150px; display: block; margin: auto;">
+  <img src="https://raw.githubusercontent.com/dhruvparmar17/vply-centre/main/assets/vplylogo.jpg" alt="VPLY Logo" style="max-width:150px; display:block; margin:auto; border-radius:10px;">
   <h1>VPLY TELEPHONE DIARY</h1>
 
-  <input type="text" id="search" placeholder="Search by any field..."/>
+  <input type="text" id="search" placeholder="Search by any field..." />
   <button onclick="searchEntries()">🔍 Search</button>
+
+  <div id="search-results"></div>
 
   <h2>Enter Company Details</h2>
   <input id="company" placeholder="Company Name" />
@@ -91,7 +59,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
@@ -111,51 +78,45 @@
   }
 
   function checkPassword() {
-    const pass = document.getElementById('passwordInput').value;
-    if (pass === "Vply@1") {
+    if (document.getElementById('passwordInput').value === "Vply@1") {
       document.getElementById('login-screen').style.display = "none";
       document.getElementById('main-app').style.display = "block";
-    } else {
-      alert("Wrong password!");
-    }
+    } else alert("Wrong password!");
   }
 
-  function addProductField() {
+  function addProductField(value = "") {
     if (productCount >= 10) return alert("Max 10 products!");
     const id = `product${productCount}`;
     const div = document.createElement("div");
     div.className = "product-list";
-    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount + 1}" />
-                     <span class="delete-btn" onclick="this.parentNode.remove();">❌</span>`;
+    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount+1}" value="${value}" /> <span class="delete-btn" onclick="this.parentNode.remove()">❌</span>`;
     document.getElementById("product-fields").appendChild(div);
     productCount++;
   }
 
   function saveData() {
     const products = [];
-    for (let i = 0; i < 10; i++) {
-      const input = document.getElementById(`product${i}`);
-      if (input) products.push(input.value);
+    for (let i=0; i<10; i++){
+      let el = document.getElementById(`product${i}`);
+      if (el && el.value.trim()) products.push(el.value.trim());
     }
-
-    const data = {
-      company: document.getElementById("company").value,
-      category: document.getElementById("category").value,
-      brand: document.getElementById("brand").value,
-      products: products,
-      address: document.getElementById("address").value,
-      owner: document.getElementById("owner").value,
-      ownerPhone: document.getElementById("ownerPhone").value,
-      salesman: document.getElementById("salesman").value,
-      salesmanPhone: document.getElementById("salesmanPhone").value,
-      godown: document.getElementById("godown").value,
-      gst: document.getElementById("gst").value
+    const obj = {
+      company: document.getElementById("company").value.trim(),
+      category: document.getElementById("category").value.trim(),
+      brand: document.getElementById("brand").value.trim(),
+      products,
+      address: document.getElementById("address").value.trim(),
+      owner: document.getElementById("owner").value.trim(),
+      ownerPhone: document.getElementById("ownerPhone").value.trim(),
+      salesman: document.getElementById("salesman").value.trim(),
+      salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
+      godown: document.getElementById("godown").value.trim(),
+      gst: document.getElementById("gst").value.trim()
     };
-
-    db.ref("entries").push(data, () => {
-      alert("✅ Saved to Firebase!");
-      sendToSheet(data);
-      clearForm();
+    db.ref("entries").push(obj, ()=>{
+      alert("✅ Saved!");
+      sendToSheet(obj);
+      location.reload();
     });
   }
 
@@ -168,72 +129,62 @@
     });
   }
 
-  function clearForm() {
-    ['company','category','brand','address','owner','ownerPhone','salesman','salesmanPhone','godown','gst'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById("product-fields").innerHTML = "";
-    productCount = 0;
-    document.getElementById("cardImage").value = "";
-  }
-
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Copied: " + text);
-    });
-  }
-
-  function deleteEntry(key, btnElement) {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      db.ref("entries/" + key).remove(() => {
-        alert("🗑️ Entry deleted.");
-        btnElement.parentNode.remove();
-      });
-    }
-  }
-
   function searchEntries() {
     const query = document.getElementById("search").value.toLowerCase().trim();
-    if (!query) return alert("Please type something to search.");
-
+    const resultDiv = document.getElementById("search-results");
+    resultDiv.innerHTML = "";
+    if (!query) return alert("Please enter a search term.");
     db.ref("entries").once("value", (snapshot) => {
       const data = snapshot.val();
-      let found = [];
-
-      if (data) {
-        Object.entries(data).forEach(([key, entry]) => {
-          const matchContent = Object.values(entry).join(" ").toLowerCase();
-          if (matchContent.includes(query)) {
-            found.push(`
-<b>📌 Company:</b> ${entry.company}<br>
-<b>📁 Category:</b> ${entry.category}<br>
-<b>🏷️ Brand:</b> ${entry.brand}<br>
-<b>🛒 Products:</b> ${(entry.products || []).join(", ")}<br>
-<b>📍 Address:</b> ${entry.address}<br>
-<b>👤 Owner:</b> ${entry.owner} - 
-<a href="tel:${entry.ownerPhone}" class="tel-link">${entry.ownerPhone}</a>
-<span class="copy-btn" onclick="copyToClipboard('${entry.ownerPhone}')">📋</span><br>
-<b>🧑‍💼 Salesman:</b> ${entry.salesman} - 
-<a href="tel:${entry.salesmanPhone}" class="tel-link">${entry.salesmanPhone}</a>
-<span class="copy-btn" onclick="copyToClipboard('${entry.salesmanPhone}')">📋</span><br>
-<b>🏢 Godown:</b> ${entry.godown}<br>
-<b>🧾 GST:</b> ${entry.gst}<br>
-<button onclick="deleteEntry('${key}', this)">🗑️ Delete</button><hr>`);
-          }
-        });
-      }
-
-      const existingPopup = document.getElementById("popupResult");
-      if (existingPopup) existingPopup.remove();
-
-      if (found.length > 0) {
-        const popup = document.createElement("div");
-        popup.id = "popupResult";
-        popup.style.cssText = "position:fixed; top:10%; left:5%; right:5%; max-height:80%; overflow:auto; background:white; border:2px solid black; padding:20px; z-index:9999;";
-        popup.innerHTML = found.join("") + `<button onclick="this.parentNode.remove()">❌ Close</button>`;
-        document.body.appendChild(popup);
-      } else {
-        alert("❌ No matching entry found.");
-      }
+      if (!data) return alert("No entries found.");
+      let output = "";
+      Object.entries(data).forEach(([key, entry]) => {
+        const matchContent = Object.values(entry).join(" ").toLowerCase();
+        if (matchContent.includes(query)) {
+          output += `<div style='border:1px solid gray;padding:10px;margin:10px 0;'>
+            <b>Company:</b> <input data-key="${key}" data-field="company" value="${entry.company}" /><br>
+            <b>Category:</b> <input data-key="${key}" data-field="category" value="${entry.category}" /><br>
+            <b>Brand:</b> <input data-key="${key}" data-field="brand" value="${entry.brand}" /><br>
+            <b>Products:</b><br>
+            ${(entry.products || []).map((p, i) => `<input data-key="${key}" data-field="products" value="${p}" />`).join("<br>")}<br>
+            <b>Address:</b> <input data-key="${key}" data-field="address" value="${entry.address}" /><br>
+            <b>Owner:</b> <input data-key="${key}" data-field="owner" value="${entry.owner}" /> <b>Phone:</b> <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone}" /><br>
+            <b>Salesman:</b> <input data-key="${key}" data-field="salesman" value="${entry.salesman}" /> <b>Phone:</b> <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone}" /><br>
+            <b>Godown:</b> <input data-key="${key}" data-field="godown" value="${entry.godown}" /><br>
+            <b>GST:</b> <input data-key="${key}" data-field="gst" value="${entry.gst}" /><br>
+            <button onclick='saveAllFields("${key}")'>💾 Save Changes</button>
+            <button onclick='deleteEntry("${key}")'>🗑️ Delete Entry</button>
+          </div>`;
+        }
+      });
+      resultDiv.innerHTML = output || "<p>No matching entries found.</p>";
     });
+  }
+
+  function saveAllFields(key){
+    const ins = document.querySelectorAll(`input[data-key="${key}"]`);
+    const updates = {};
+    ins.forEach(el=>{
+      const f = el.getAttribute("data-field");
+      if (f === "products") {
+        if (!updates.products) updates.products = [];
+        if (el.value.trim()) updates.products.push(el.value.trim());
+      } else updates[f] = el.value.trim();
+    });
+    db.ref(`entries/${key}`).update(updates, ()=>{
+      alert("✅ Entry updated!");
+      sendToSheet(updates);
+      searchEntries();
+    });
+  }
+
+  function deleteEntry(key) {
+    if (confirm("Are you sure you want to delete this entry?")) {
+      db.ref(`entries/${key}`).remove(()=>{
+        alert("🗑️ Entry deleted.");
+        searchEntries();
+      });
+    }
   }
 </script>
 </body>
