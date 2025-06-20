@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VPLY Telephone Diary</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: url('https://www.transparenttextures.com/patterns/wood-pattern.png') repeat; background-color: #e4c69b; color: #3e2a1a; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: url('https://www.transparenttextures.com/patterns/wood-1.png') repeat fixed;
+      background-color: #dbc4a3;
+      color: #3e2a1a;
+    }
     .container { max-width: 960px; margin: auto; padding: 20px; background: rgba(255, 255, 255, 0.96); border-radius: 15px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); }
     h1, h2, h3 { text-align: center; color: #3b2310; }
     input, button, select, textarea { padding: 12px; margin: 6px 0; width: 100%; border-radius: 8px; border: 1px solid #b78c52; background-color: #fff7e6; box-sizing: border-box; }
@@ -17,11 +23,6 @@
     .field-row { margin-bottom: 10px; }
     .delete-field { color: red; cursor: pointer; margin-left: 5px; font-size: 0.9em; }
     .login-screen, .main-app { display: none; }
-    .logo-section { text-align: center; margin-bottom: 15px; }
-    .logo-section img { max-width: 160px; border-radius: 12px; }
-    .tagline { font-size: 18px; font-weight: bold; color: #3b2310; }
-    .tagline .red { color: red; }
-    .contact-info { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
     @media (max-width: 768px) {
       body { font-size: 16px; }
       .container { padding: 15px; }
@@ -37,14 +38,7 @@
 </div>
 
 <div class="container main-app" id="main-app">
-
-  <!-- ✅ Logo section with tagline and phone -->
-  <div class="logo-section">
-    <img src="vplylogo.jpg" alt="VPLY Logo" />
-    <div class="tagline">यह दोस्त, <span class="red">हमेशा</span> आपके लिए</div>
-    <div class="contact-info">📞 <a href="tel:+919920265047" style="color:black;">+91 99202 65047</a></div>
-  </div>
-
+  <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" style="max-width:150px; display:block; margin:auto; border-radius:10px;">
   <h1>VPLY TELEPHONE DIARY</h1>
 
   <input type="text" id="search" placeholder="Search by any field..." />
@@ -74,7 +68,6 @@
   <button onclick="saveData()">Save Entry</button>
 </div>
 
-<!-- Firebase and scripts are untouched from your original version -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
@@ -187,8 +180,18 @@
             <b>Products:</b><br>
             ${[...Array(10).keys()].map(i => `<input data-key="${key}" data-field="product${i+1}" value="${entry[`product${i+1}`] || ""}" />`).join("<br>")}<br>
             <b>Address:</b> <input data-key="${key}" data-field="address" value="${entry.address}" /><br>
-            <b>Owner:</b> <input data-key="${key}" data-field="owner" value="${entry.owner}" /> <b>Phone:</b> <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone}" /><br>
-            <b>Salesman:</b> <input data-key="${key}" data-field="salesman" value="${entry.salesman}" /> <b>Phone:</b> <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone}" /><br>
+            <b>Owner:</b> <input data-key="${key}" data-field="owner" value="${entry.owner}" /> 
+            <b>Phone:</b> <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone}" />
+            <a href="https://wa.me/91${entry.ownerPhone}?text=Hello%20${entry.owner},%20this%20is%20from%20VPLY" target="_blank">
+              <button>💬 WhatsApp Owner</button>
+            </a><br>
+
+            <b>Salesman:</b> <input data-key="${key}" data-field="salesman" value="${entry.salesman}" /> 
+            <b>Phone:</b> <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone}" />
+            <a href="https://wa.me/91${entry.salesmanPhone}?text=Hello%20${entry.salesman},%20this%20is%20from%20VPLY" target="_blank">
+              <button>💬 WhatsApp Salesman</button>
+            </a><br>
+
             <b>Godown:</b> <input data-key="${key}" data-field="godown" value="${entry.godown}" /><br>
             <b>GST:</b> <input data-key="${key}" data-field="gst" value="${entry.gst}" /><br>
             <button onclick='saveAllFields("${key}")'>💾 Save Changes</button>
