@@ -1,232 +1,948 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VPLY Telephone Diary</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      background: url('https://www.transparenttextures.com/patterns/wood-1.png') repeat fixed;
-      background-color: #dbc4a3;
-      color: #3e2a1a;
-    }
-    .container { max-width: 960px; margin: auto; padding: 20px; background: rgba(255, 255, 255, 0.96); border-radius: 15px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); }
-    h1, h2, h3 { text-align: center; color: #3b2310; }
-    input, button, select, textarea { padding: 12px; margin: 6px 0; width: 100%; border-radius: 8px; border: 1px solid #b78c52; background-color: #fff7e6; box-sizing: border-box; }
-    .product-list { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .product-list input { flex: 1; }
-    .delete-btn { color: red; cursor: pointer; font-weight: bold; }
-    .copy-btn { color: green; font-size: 14px; cursor: pointer; margin-left: 5px; }
-    a.tel-link { text-decoration: none; color: blue; }
-    .field-row { margin-bottom: 10px; }
-    .delete-field { color: red; cursor: pointer; margin-left: 5px; font-size: 0.9em; }
-    .login-screen, .main-app { display: none; }
-    @media (max-width: 768px) {
-      body { font-size: 16px; }
-      .container { padding: 15px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPLY Telephone Diary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fde68a 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Wood grain background overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A574' fill-opacity='0.1'%3E%3Cpath d='M30 0c16.569 0 30 13.431 30 30s-13.431 30-30 30S0 46.569 0 30 13.431 0 30 0zm0 6c13.255 0 24 10.745 24 24s-10.745 24-24 24S6 43.255 6 30 16.745 6 30 6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Login screen styles */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 4px #fbbf24;
+            max-width: 28rem;
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #fde68a20 0%, #f59e0b30 100%);
+            border-radius: 1.5rem;
+        }
+
+        .login-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 8rem;
+            margin: 0 auto 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 2px solid #fbbf24;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #b45309;
+            margin-bottom: 2rem;
+        }
+
+        /* Input styles */
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #fef7ed 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 0.75rem;
+            outline: none;
+            color: #92400e;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: #d97706;
+        }
+
+        input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+            transform: scale(1.02);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #d97706;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #b45309;
+        }
+
+        /* Button styles */
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
+            border: 2px solid #fbbf24;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3b82f6 0%, #4338ca 100%);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #3730a3 100%);
+            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.6);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-red:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.6);
+        }
+
+        /* Shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Main app styles */
+        .main-app {
+            display: none;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 4px solid #fbbf24;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .header-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #fde68a20 0%, #f59e0b30 100%);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .main-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .title-underline {
+            height: 0.25rem;
+            width: 6rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            margin: 0 auto;
+            border-radius: 9999px;
+        }
+
+        .section-card {
+            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fbbf24;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-btn {
+            min-width: 120px;
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Product section */
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .product-item {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-input {
+            flex: 1;
+        }
+
+        .delete-product-btn {
+            min-width: 50px;
+            width: 50px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Search results */
+        .search-results {
+            margin-top: 1rem;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 0.75rem;
+            border: 2px solid #fbbf24;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-field {
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: #92400e;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .whatsapp-btn:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-1px) scale(1.05);
+        }
+
+        /* File input styling */
+        .file-input {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid #fbbf24;
+            border-radius: 0.75rem;
+            color: #92400e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-input:hover .file-input-label {
+            background: #fef7ed;
+            transform: scale(1.02);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .main-title {
+                font-size: 1.5rem;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            .whatsapp-btn {
+                justify-content: center;
+            }
+
+            .products-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 0.5rem;
+                padding: 1.5rem;
+            }
+
+            .section-card {
+                padding: 1rem;
+            }
+
+            .main-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Hide/show utilities */
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Success/error states */
+        .success {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+    </style>
 </head>
 <body onload="showLoginScreen()">
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-card">
+            <div class="login-content">
+                <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" class="logo">
+                <h2 class="login-title">VPLY Access</h2>
+                <p class="login-subtitle">Enter password to continue</p>
+                
+                <div class="input-group">
+                    <input type="password" id="passwordInput" placeholder="Enter Password" />
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <span id="toggleIcon">👁️</span>
+                    </button>
+                </div>
+                
+                <button class="btn" onclick="checkPassword()">
+                    Enter Diary
+                    <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
+                </button>
+            </div>
+        </div>
+    </div>
 
-<div class="container login-screen" id="login-screen">
-  <h2>Enter Password to Access</h2>
-  <input type="password" id="passwordInput" placeholder="Enter Password" />
-  <button onclick="checkPassword()">Enter</button>
-</div>
+    <!-- Main Application -->
+    <div class="main-app" id="main-app">
+        <div class="container">
+            <!-- Header -->
+            <div class="header-card">
+                <div class="header-content">
+                    <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" class="logo" style="max-width: 9rem;">
+                    <h1 class="main-title">VPLY TELEPHONE DIARY</h1>
+                    <div class="title-underline"></div>
+                </div>
+            </div>
 
-<div class="container main-app" id="main-app">
-  <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" style="max-width:150px; display:block; margin:auto; border-radius:10px;">
-  <h1>VPLY TELEPHONE DIARY</h1>
+            <!-- Search Section -->
+            <div class="section-card">
+                <div class="search-container">
+                    <input type="text" id="search" placeholder="Search by company, category, brand, owner..." class="search-input" />
+                    <button class="btn btn-secondary search-btn" onclick="searchEntries()">
+                        🔍 Search
+                    </button>
+                </div>
+                <div id="search-results" class="search-results"></div>
+            </div>
 
-  <input type="text" id="search" placeholder="Search by any field..." />
-  <button onclick="searchEntries()">🔍 Search</button>
+            <!-- Entry Form -->
+            <div class="section-card">
+                <h2 class="section-title">Enter Company Details</h2>
+                
+                <div class="grid-2">
+                    <input id="company" placeholder="Company Name" />
+                    <input id="category" placeholder="Category" />
+                    <input id="brand" placeholder="Brand" />
+                    <input id="address" placeholder="Company Address" />
+                </div>
 
-  <div id="search-results"></div>
+                <!-- Products Section -->
+                <div style="margin: 1.5rem 0;">
+                    <div class="products-header">
+                        <h3 style="color: #92400e; margin: 0;">Brand Products (Max 10)</h3>
+                        <button class="btn btn-green" onclick="addProductField()" style="width: auto; min-width: 150px;">
+                            ➕ Add Product
+                        </button>
+                    </div>
+                    <div id="product-fields"></div>
+                </div>
 
-  <h2>Enter Company Details</h2>
-  <input id="company" placeholder="Company Name" />
-  <input id="category" placeholder="Category" />
-  <input id="brand" placeholder="Brand" />
+                <!-- Contact Information -->
+                <div class="grid-2">
+                    <input id="owner" placeholder="Owner Name" />
+                    <input id="ownerPhone" placeholder="Owner Phone" />
+                    <input id="salesman" placeholder="Salesman Name" />
+                    <input id="salesmanPhone" placeholder="Salesman Phone" />
+                    <input id="godown" placeholder="Godown No." />
+                    <input id="gst" placeholder="GST No." />
+                </div>
 
-  <div id="product-fields">
-    <h3>Brand Products (Max 10)</h3>
-  </div>
-  <button onclick="addProductField()">Add Product</button>
+                <!-- File Upload -->
+                <div class="file-input">
+                    <input type="file" accept="image/*" id="cardImage" capture="environment" />
+                    <label for="cardImage" class="file-input-label">
+                        📷 Upload Business Card Image
+                    </label>
+                </div>
 
-  <input id="address" placeholder="Company Address" />
-  <input id="owner" placeholder="Owner Name" />
-  <input id="ownerPhone" placeholder="Owner Phone" />
-  <input id="salesman" placeholder="Salesman Name" />
-  <input id="salesmanPhone" placeholder="Salesman Phone" />
-  <input id="godown" placeholder="Godown No." />
-  <input id="gst" placeholder="GST No." />
-  <input type="file" accept="image/*" id="cardImage" capture="environment"/>
+                <!-- Save Button -->
+                <button class="btn" onclick="saveData()" style="margin-top: 1.5rem; font-size: 1.125rem; padding: 1rem;">
+                    💾 Save Entry
+                    <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
+                </button>
+            </div>
+        </div>
+    </div>
 
-  <button onclick="saveData()">Save Entry</button>
-</div>
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
-    authDomain: "vply-centre.firebaseapp.com",
-    databaseURL: "https://vply-centre-default-rtdb.firebaseio.com",
-    projectId: "vply-centre",
-    storageBucket: "vply-centre.appspot.com",
-    messagingSenderId: "180899405669",
-    appId: "1:180899405669:web:571820a646057e91accb8c"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  let productCount = 0;
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
+            authDomain: "vply-centre.firebaseapp.com",
+            databaseURL: "https://vply-centre-default-rtdb.firebaseio.com",
+            projectId: "vply-centre",
+            storageBucket: "vply-centre.appspot.com",
+            messagingSenderId: "180899405669",
+            appId: "1:180899405669:web:571820a646057e91accb8c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let productCount = 0;
 
-  function showLoginScreen() {
-    document.getElementById("login-screen").style.display = "block";
-    document.getElementById("main-app").style.display = "none";
-  }
-
-  function checkPassword() {
-    const password = document.getElementById('passwordInput').value;
-    if (password === "Vply@1") {
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("main-app").style.display = "block";
-    } else {
-      alert("Wrong password!");
-    }
-  }
-
-  function addProductField(value = "") {
-    if (productCount >= 10) return alert("Max 10 products!");
-    const id = `product${productCount}`;
-    const div = document.createElement("div");
-    div.className = "product-list";
-    div.innerHTML = `<input id="${id}" placeholder="Product ${productCount+1}" value="${value}" /> <span class="delete-btn" onclick="this.parentNode.remove()">❌</span>`;
-    document.getElementById("product-fields").appendChild(div);
-    productCount++;
-  }
-
-  function saveData() {
-    const products = [];
-    for (let i = 0; i < 10; i++) {
-      let el = document.getElementById(`product${i}`);
-      if (el && el.value.trim()) products.push(el.value.trim());
-    }
-    const obj = {
-      Timestamp: new Date().toLocaleString(),
-      company: document.getElementById("company").value.trim(),
-      category: document.getElementById("category").value.trim(),
-      brand: document.getElementById("brand").value.trim(),
-      product1: products[0] || "",
-      product2: products[1] || "",
-      product3: products[2] || "",
-      product4: products[3] || "",
-      product5: products[4] || "",
-      product6: products[5] || "",
-      product7: products[6] || "",
-      product8: products[7] || "",
-      product9: products[8] || "",
-      product10: products[9] || "",
-      address: document.getElementById("address").value.trim(),
-      owner: document.getElementById("owner").value.trim(),
-      ownerPhone: document.getElementById("ownerPhone").value.trim(),
-      salesman: document.getElementById("salesman").value.trim(),
-      salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
-      godown: document.getElementById("godown").value.trim(),
-      gst: document.getElementById("gst").value.trim()
-    };
-    db.ref("entries").push(obj, () => {
-      alert("✅ Saved!");
-      sendToSheet(obj);
-      clearInputs();
-    });
-  }
-
-  function clearInputs() {
-    document.querySelectorAll('input').forEach(i => { if(i.type !== 'file') i.value = ''; });
-    document.getElementById("product-fields").innerHTML = '<h3>Brand Products (Max 10)</h3>';
-    productCount = 0;
-    document.getElementById("search-results").innerHTML = "";
-  }
-
-  function sendToSheet(data) {
-    fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-  }
-
-  function searchEntries() {
-    const query = document.getElementById("search").value.toLowerCase().trim();
-    const resultDiv = document.getElementById("search-results");
-    resultDiv.innerHTML = "";
-    if (!query) return alert("Please enter a search term.");
-    db.ref("entries").once("value", (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return alert("No entries found.");
-      let output = "";
-      Object.entries(data).forEach(([key, entry]) => {
-        const matchContent = Object.values(entry).join(" ").toLowerCase();
-        if (matchContent.includes(query)) {
-          output += `<div style='border:1px solid gray;padding:10px;margin:10px 0;'>
-            <b>Company:</b> <input data-key="${key}" data-field="company" value="${entry.company}" /><br>
-            <b>Category:</b> <input data-key="${key}" data-field="category" value="${entry.category}" /><br>
-            <b>Brand:</b> <input data-key="${key}" data-field="brand" value="${entry.brand}" /><br>
-            <b>Products:</b><br>
-            ${[...Array(10).keys()].map(i => `<input data-key="${key}" data-field="product${i+1}" value="${entry[`product${i+1}`] || ""}" />`).join("<br>")}<br>
-            <b>Address:</b> <input data-key="${key}" data-field="address" value="${entry.address}" /><br>
-            <b>Owner:</b> <input data-key="${key}" data-field="owner" value="${entry.owner}" /> 
-            <b>Phone:</b> <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone}" />
-            <a href="https://wa.me/91${entry.ownerPhone}?text=Hello%20${entry.owner},%20this%20is%20from%20VPLY" target="_blank">
-              <button>💬 WhatsApp Owner</button>
-            </a><br>
-
-            <b>Salesman:</b> <input data-key="${key}" data-field="salesman" value="${entry.salesman}" /> 
-            <b>Phone:</b> <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone}" />
-            <a href="https://wa.me/91${entry.salesmanPhone}?text=Hello%20${entry.salesman},%20this%20is%20from%20VPLY" target="_blank">
-              <button>💬 WhatsApp Salesman</button>
-            </a><br>
-
-            <b>Godown:</b> <input data-key="${key}" data-field="godown" value="${entry.godown}" /><br>
-            <b>GST:</b> <input data-key="${key}" data-field="gst" value="${entry.gst}" /><br>
-            <button onclick='saveAllFields("${key}")'>💾 Save Changes</button>
-            <button onclick='deleteEntry("${key}")'>🗑️ Delete Entry</button>
-          </div>`;
+        function showLoginScreen() {
+            document.getElementById("login-screen").style.display = "flex";
+            document.getElementById("main-app").style.display = "none";
         }
-      });
-      resultDiv.innerHTML = output || "<p>No matching entries found.</p>";
-    });
-  }
 
-  function saveAllFields(key) {
-    const ins = document.querySelectorAll(`input[data-key="${key}"]`);
-    const updates = {};
-    ins.forEach(el => {
-      const f = el.getAttribute("data-field");
-      updates[f] = el.value.trim();
-    });
-    db.ref(`entries/${key}`).update(updates, () => {
-      alert("✅ Entry updated!");
-      sendToSheet({ Timestamp: new Date().toLocaleString(), ...updates });
-      document.getElementById("search").value = "";
-      searchEntries();
-    });
-  }
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
 
-  function deleteEntry(key) {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      db.ref(`entries/${key}`).remove(() => {
-        alert("🗑️ Entry deleted.");
-        document.getElementById("search").value = "";
-        searchEntries();
-      });
-    }
-  }
-</script>
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const passwordInput = document.getElementById('passwordInput');
+            
+            if (password === "Vply@1") {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("main-app").style.display = "block";
+                showToast("Welcome to VPLY Telephone Diary!", "success");
+            } else {
+                passwordInput.classList.add('shake', 'error');
+                showToast("Wrong password!", "error");
+                setTimeout(() => {
+                    passwordInput.classList.remove('shake', 'error');
+                }, 500);
+            }
+        }
+
+        function addProductField(value = "") {
+            if (productCount >= 10) {
+                showToast("Maximum 10 products allowed!", "error");
+                return;
+            }
+            
+            const id = `product${productCount}`;
+            const div = document.createElement("div");
+            div.className = "product-item";
+            div.innerHTML = `
+                <input id="${id}" placeholder="Product ${productCount + 1}" value="${value}" class="product-input" />
+                ${productCount > 0 ? `<button class="btn btn-red delete-product-btn" onclick="this.parentNode.remove(); productCount--;">🗑️</button>` : ''}
+            `;
+            document.getElementById("product-fields").appendChild(div);
+            productCount++;
+        }
+
+        function saveData() {
+            const saveBtn = event.target;
+            saveBtn.classList.add('loading');
+            saveBtn.textContent = 'Saving...';
+            
+            const products = [];
+            for (let i = 0; i < 10; i++) {
+                let el = document.getElementById(`product${i}`);
+                if (el && el.value.trim()) products.push(el.value.trim());
+            }
+            
+            const obj = {
+                Timestamp: new Date().toLocaleString(),
+                company: document.getElementById("company").value.trim(),
+                category: document.getElementById("category").value.trim(),
+                brand: document.getElementById("brand").value.trim(),
+                product1: products[0] || "",
+                product2: products[1] || "",
+                product3: products[2] || "",
+                product4: products[3] || "",
+                product5: products[4] || "",
+                product6: products[5] || "",
+                product7: products[6] || "",
+                product8: products[7] || "",
+                product9: products[8] || "",
+                product10: products[9] || "",
+                address: document.getElementById("address").value.trim(),
+                owner: document.getElementById("owner").value.trim(),
+                ownerPhone: document.getElementById("ownerPhone").value.trim(),
+                salesman: document.getElementById("salesman").value.trim(),
+                salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
+                godown: document.getElementById("godown").value.trim(),
+                gst: document.getElementById("gst").value.trim()
+            };
+            
+            db.ref("entries").push(obj, () => {
+                showToast("Entry saved successfully! ✅", "success");
+                sendToSheet(obj);
+                clearInputs();
+                saveBtn.classList.remove('loading');
+                saveBtn.innerHTML = '💾 Save Entry <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>';
+            });
+        }
+
+        function clearInputs() {
+            document.querySelectorAll('input').forEach(i => { 
+                if(i.type !== 'file') i.value = ''; 
+            });
+            document.getElementById("product-fields").innerHTML = '';
+            productCount = 0;
+            addProductField(); // Add initial product field
+            document.getElementById("search-results").innerHTML = "";
+        }
+
+        function sendToSheet(data) {
+            fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+        }
+
+        function searchEntries() {
+            const query = document.getElementById("search").value.toLowerCase().trim();
+            const resultDiv = document.getElementById("search-results");
+            resultDiv.innerHTML = "";
+            
+            if (!query) {
+                showToast("Please enter a search term.", "error");
+                return;
+            }
+            
+            showToast("Searching...", "info");
+            
+            db.ref("entries").once("value", (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    showToast("No entries found.", "error");
+                    return;
+                }
+                
+                let output = "";
+                let count = 0;
+                
+                Object.entries(data).forEach(([key, entry]) => {
+                    const matchContent = Object.values(entry).join(" ").toLowerCase();
+                    if (matchContent.includes(query)) {
+                        count++;
+                        output += `
+                            <div class="result-item">
+                                <div class="result-grid">
+                                    <div>
+                                        <div class="result-field">
+                                            <span class="result-label">Company:</span>
+                                            <input data-key="${key}" data-field="company" value="${entry.company || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Category:</span>
+                                            <input data-key="${key}" data-field="category" value="${entry.category || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Brand:</span>
+                                            <input data-key="${key}" data-field="brand" value="${entry.brand || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Address:</span>
+                                            <input data-key="${key}" data-field="address" value="${entry.address || ''}" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="result-field">
+                                            <span class="result-label">Owner:</span>
+                                            <input data-key="${key}" data-field="owner" value="${entry.owner || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Owner Phone:</span>
+                                            <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Salesman:</span>
+                                            <input data-key="${key}" data-field="salesman" value="${entry.salesman || ''}" />
+                                        </div>
+                                        <div class="result-field">
+                                            <span class="result-label">Salesman Phone:</span>
+                                            <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone || ''}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin: 1rem 0;">
+                                    <strong style="color: #92400e;">Products:</strong><br>
+                                    ${[...Array(10).keys()].map(i => 
+                                        `<input data-key="${key}" data-field="product${i+1}" value="${entry[`product${i+1}`] || ""}" placeholder="Product ${i+1}" style="margin: 0.25rem 0; display: ${entry[`product${i+1}`] || i === 0 ? 'block' : 'none'};" />`
+                                    ).join("")}
+                                </div>
+                                
+                                <div class="grid-2" style="margin: 1rem 0;">
+                                    <div class="result-field">
+                                        <span class="result-label">Godown:</span>
+                                        <input data-key="${key}" data-field="godown" value="${entry.godown || ''}" />
+                                    </div>
+                                    <div class="result-field">
+                                        <span class="result-label">GST:</span>
+                                        <input data-key="${key}" data-field="gst" value="${entry.gst || ''}" />
+                                    </div>
+                                </div>
+                                
+                                <div class="result-actions">
+                                    <a href="https://wa.me/91${entry.ownerPhone}?text=Hello%20${encodeURIComponent(entry.owner)},%20this%20is%20from%20VPLY" 
+                                       target="_blank" class="whatsapp-btn">
+                                        💬 WhatsApp Owner
+                                    </a>
+                                    <a href="https://wa.me/91${entry.salesmanPhone}?text=Hello%20${encodeURIComponent(entry.salesman)},%20this%20is%20from%20VPLY" 
+                                       target="_blank" class="whatsapp-btn">
+                                        💬 WhatsApp Salesman
+                                    </a>
+                                    <button class="btn" onclick='saveAllFields("${key}")' style="width: auto; min-width: 120px;">
+                                        💾 Save Changes
+                                    </button>
+                                    <button class="btn btn-red" onclick='deleteEntry("${key}")' style="width: auto; min-width: 120px;">
+                                        🗑️ Delete Entry
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (count === 0) {
+                    resultDiv.innerHTML = "<p style='text-align: center; color: #92400e; padding: 2rem;'>No matching entries found.</p>";
+                    showToast("No matching entries found.", "error");
+                } else {
+                    resultDiv.innerHTML = output;
+                    showToast(`Found ${count} matching entries!`, "success");
+                }
+            });
+        }
+
+        function saveAllFields(key) {
+            const inputs = document.querySelectorAll(`input[data-key="${key}"]`);
+            const updates = {};
+            
+            inputs.forEach(el => {
+                const field = el.getAttribute("data-field");
+                updates[field] = el.value.trim();
+            });
+            
+            updates.Timestamp = new Date().toLocaleString();
+            
+            db.ref(`entries/${key}`).update(updates, () => {
+                showToast("Entry updated successfully! ✅", "success");
+                sendToSheet(updates);
+            });
+        }
+
+        function deleteEntry(key) {
+            if (confirm("Are you sure you want to delete this entry?")) {
+                db.ref(`entries/${key}`).remove(() => {
+                    showToast("Entry deleted successfully! 🗑️", "success");
+                    searchEntries();
+                });
+            }
+        }
+
+        function showToast(message, type = "info") {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 0.75rem;
+                color: white;
+                font-weight: bold;
+                z-index: 9999;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            
+            // Set background based on type
+            switch(type) {
+                case 'success':
+                    toast.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    break;
+                case 'error':
+                    toast.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                    break;
+                case 'info':
+                default:
+                    toast.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                    break;
+            }
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize with one product field
+        window.addEventListener('load', () => {
+            addProductField();
+        });
+
+        // Handle enter key on password input
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
