@@ -1,10 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VPLY Telephone Diary</title>
+    <title>VPLY Telephone Diary - Enhanced</title>
+    <meta name="description" content="Enhanced VPLY Telephone Diary with advanced features for managing company contacts, locations, and business information." />
+    <meta name="keywords" content="VPLY, telephone diary, business contacts, company management, plywood, laminates" />
+    <meta name="author" content="VPLY Centre" />
     <style>
         * {
             margin: 0;
@@ -14,10 +16,38 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fde68a 100%);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Theme Variables */
+        :root {
+            --bg-primary: linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fde68a 100%);
+            --bg-secondary: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            --bg-card: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            --text-primary: #92400e;
+            --text-secondary: #b45309;
+            --border-color: #fbbf24;
+            --shadow-color: rgba(0, 0, 0, 0.25);
+            --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+            --bg-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            --bg-card: linear-gradient(135deg, #334155 0%, #475569 100%);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #fbbf24;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         /* Wood grain background overlay */
@@ -30,14 +60,14 @@
             height: 100%;
             background-image: 
                 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A574' fill-opacity='0.1'%3E%3Cpath d='M30 0c16.569 0 30 13.431 30 30s-13.431 30-30 30S0 46.569 0 30 13.431 0 30 0zm0 6c13.255 0 24 10.745 24 24s-10.745 24-24 24S6 43.255 6 30 16.745 6 30 6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.3;
+            opacity: 0.1;
             pointer-events: none;
             z-index: -1;
         }
 
         /* Container styles */
         .container {
-            max-width: 1024px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 1rem;
             position: relative;
@@ -54,24 +84,21 @@
         }
 
         .login-card {
-            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
+            background: var(--bg-card);
             padding: 2rem;
             border-radius: 1.5rem;
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.25),
-                0 0 0 4px #fbbf24;
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+            border: 4px solid var(--border-color);
             max-width: 28rem;
             width: 100%;
             position: relative;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            transform: scale(1);
+            transition: all 0.3s ease;
         }
 
-        .login-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #fde68a20 0%, #f59e0b30 100%);
-            border-radius: 1.5rem;
+        .login-card:hover {
+            transform: scale(1.02);
         }
 
         .login-content {
@@ -83,21 +110,94 @@
         .logo {
             max-width: 8rem;
             margin: 0 auto 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            border: 2px solid #fbbf24;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px var(--shadow-color);
+            border: 3px solid var(--border-color);
         }
 
         .login-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: bold;
-            color: #92400e;
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
 
         .login-subtitle {
-            color: #b45309;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
+        }
+
+        /* Header styles */
+        .header-card {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+            border: 4px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            z-index: 10;
+        }
+
+        .control-btn {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px -3px var(--shadow-color);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px -5px var(--shadow-color);
+        }
+
+        .main-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .title-underline {
+            height: 0.25rem;
+            width: 6rem;
+            background: var(--accent-gradient);
+            margin: 0 auto;
+            border-radius: 9999px;
+        }
+
+        /* Section card styles */
+        .section-card {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px var(--shadow-color);
+            border: 2px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
         }
 
         /* Input styles */
@@ -106,51 +206,32 @@
             margin-bottom: 1rem;
         }
 
-        input {
+        input, textarea, select {
             width: 100%;
             padding: 0.75rem 1rem;
-            background: linear-gradient(135deg, #fef7ed 0%, #fde68a 100%);
-            border: 2px solid #fbbf24;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
             border-radius: 0.75rem;
             outline: none;
-            color: #92400e;
+            color: var(--text-primary);
             font-size: 1rem;
             transition: all 0.3s ease;
         }
 
-        input::placeholder {
-            color: #d97706;
+        input::placeholder, textarea::placeholder {
+            color: var(--text-secondary);
         }
 
-        input:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: #f59e0b;
             box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
             transform: scale(1.02);
         }
 
-        .password-toggle {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #d97706;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 0.25rem;
-            transition: color 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #b45309;
-        }
-
         /* Button styles */
         .btn {
-            width: 100%;
             padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            background: var(--accent-gradient);
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -158,16 +239,16 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
-            border: 2px solid #fbbf24;
+            border: 2px solid var(--border-color);
             font-size: 1rem;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            text-decoration: none;
         }
 
         .btn:hover {
-            background: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.6);
         }
@@ -182,7 +263,6 @@
         }
 
         .btn-secondary:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #3730a3 100%);
             box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.6);
         }
 
@@ -192,7 +272,6 @@
         }
 
         .btn-green:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.6);
         }
 
@@ -202,106 +281,12 @@
         }
 
         .btn-red:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.6);
         }
 
-        /* Shake animation */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-            20%, 40%, 60%, 80% { transform: translateX(2px); }
-        }
-
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-
-        /* Pulse animation */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* Main app styles */
-        .main-app {
-            display: none;
-        }
-
-        .header-card {
-            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
-            border-radius: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 4px solid #fbbf24;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .header-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #fde68a20 0%, #f59e0b30 100%);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 10;
-        }
-
-        .main-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #92400e;
-            margin-bottom: 0.5rem;
-            letter-spacing: 0.05em;
-        }
-
-        .title-underline {
-            height: 0.25rem;
-            width: 6rem;
-            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-            margin: 0 auto;
-            border-radius: 9999px;
-        }
-
-        .section-card {
-            background: linear-gradient(135deg, #fef7ed 0%, #fed7aa 100%);
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border: 2px solid #fbbf24;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #92400e;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-btn {
-            min-width: 120px;
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
         }
 
         /* Grid layouts */
@@ -311,100 +296,255 @@
             gap: 1rem;
         }
 
-        /* Product section */
-        .products-header {
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        /* Search and filter styles */
+        .search-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
             margin-bottom: 1rem;
         }
 
-        .product-item {
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .tabs {
             display: flex;
             gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.875rem;
+        }
+
+        .tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .tab:hover {
+            transform: scale(1.05);
+        }
+
+        /* Category filters */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .category-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Company card styles */
+        .company-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            border: 2px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px -3px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .company-card:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px -5px var(--shadow-color);
+        }
+
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .company-info h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .company-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.active {
+            color: #fbbf24;
+        }
+
+        /* Contact section */
+        .contact-section {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 0.75rem;
         }
 
-        .product-input {
+        .contact-info {
             flex: 1;
         }
 
-        .delete-product-btn {
-            min-width: 50px;
-            width: 50px;
-            padding: 0.75rem;
+        .contact-name {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .contact-phone {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Search results */
-        .search-results {
-            margin-top: 1rem;
+        .action-btn:hover {
+            transform: scale(1.1);
         }
 
-        .result-item {
-            background: white;
-            border-radius: 0.75rem;
-            border: 2px solid #fbbf24;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
-        }
+        .call-btn { background: #10b981; }
+        .email-btn { background: #3b82f6; }
+        .whatsapp-btn { background: #25d366; }
+        .map-btn { background: #8b5cf6; }
 
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
+        /* Product section */
+        .products-section {
             margin-bottom: 1rem;
         }
 
-        .result-field {
-            margin-bottom: 0.5rem;
-        }
-
-        .result-label {
-            font-weight: bold;
-            color: #92400e;
-            display: inline-block;
-            width: 100px;
-        }
-
-        .result-actions {
+        .products-grid {
             display: flex;
-            gap: 0.5rem;
             flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
-        .whatsapp-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
+        }
+
+        .product-tag {
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Image gallery */
+        .image-gallery {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-image {
+            width: 4rem;
+            height: 4rem;
+            object-fit: cover;
+            border-radius: 0.5rem;
             cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
         }
 
-        .whatsapp-btn:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            transform: translateY(-1px) scale(1.05);
+        .gallery-image:hover {
+            transform: scale(1.1);
         }
 
-        /* File input styling */
-        .file-input {
+        /* File upload styles */
+        .file-upload {
             position: relative;
             display: inline-block;
             width: 100%;
+            margin-bottom: 1rem;
         }
 
-        .file-input input[type=file] {
+        .file-upload input[type=file] {
             position: absolute;
             opacity: 0;
             width: 100%;
@@ -412,116 +552,161 @@
             cursor: pointer;
         }
 
-        .file-input-label {
+        .file-upload-label {
             display: block;
-            padding: 0.75rem 1rem;
-            background: white;
-            border: 2px solid #fbbf24;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
             border-radius: 0.75rem;
-            color: #92400e;
+            color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
         }
 
-        .file-input:hover .file-input-label {
-            background: #fef7ed;
+        .file-upload:hover .file-upload-label {
+            background: var(--bg-card);
             transform: scale(1.02);
         }
 
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0.5rem;
-            }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-
-            .search-container {
-                flex-direction: column;
-            }
-
-            .main-title {
-                font-size: 1.5rem;
-            }
-
-            .result-actions {
-                flex-direction: column;
-            }
-
-            .whatsapp-btn {
-                justify-content: center;
-            }
-
-            .products-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
+        /* Language selector */
+        .language-selector {
+            position: relative;
+            display: inline-block;
         }
 
-        @media (max-width: 480px) {
-            .login-card {
-                margin: 0.5rem;
-                padding: 1.5rem;
-            }
-
-            .section-card {
-                padding: 1rem;
-            }
-
-            .main-title {
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Hide/show utilities */
-        .hidden {
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px -5px var(--shadow-color);
+            z-index: 100;
+            min-width: 150px;
             display: none;
         }
 
-        .visible {
+        .language-dropdown.show {
             display: block;
         }
 
-        /* Loading states */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
+        .language-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        /* Success/error states */
-        .success {
-            border-color: #10b981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        .language-option:hover {
+            background: var(--bg-secondary);
         }
 
-        .error {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+            word-wrap: break-word;
         }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .toast.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .toast.info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake { animation: shake 0.5s ease-in-out; }
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container { padding: 0.5rem; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .search-container { flex-direction: column; }
+            .main-title { font-size: 1.5rem; }
+            .header-controls { position: static; margin-bottom: 1rem; justify-content: center; }
+            .company-header { flex-direction: column; gap: 1rem; }
+            .contact-item { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .contact-actions { justify-content: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .login-card { margin: 0.5rem; padding: 1.5rem; }
+            .section-card { padding: 1rem; }
+            .main-title { font-size: 1.25rem; }
+            .tabs { flex-direction: column; }
+            .category-filters { flex-direction: column; }
+        }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .loading { opacity: 0.7; pointer-events: none; }
+        .text-center { text-align: center; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .w-full { width: 100%; }
+        .flex { display: flex; }
+        .flex-wrap { flex-wrap: wrap; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
     </style>
 </head>
-<body onload="showLoginScreen()">
+<body onload="initializeApp()">
     <!-- Login Screen -->
     <div class="login-screen" id="login-screen">
         <div class="login-card">
             <div class="login-content">
                 <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" class="logo">
-                <h2 class="login-title">VPLY Access</h2>
-                <p class="login-subtitle">Enter password to continue</p>
+                <h2 class="login-title" id="login-title">VPLY Access</h2>
+                <p class="login-subtitle" id="login-subtitle">Enter password to continue</p>
                 
                 <div class="input-group">
                     <input type="password" id="passwordInput" placeholder="Enter Password" />
-                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <button type="button" class="control-btn" onclick="togglePassword()" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); padding: 0.5rem;">
                         <span id="toggleIcon">👁️</span>
                     </button>
                 </div>
                 
-                <button class="btn" onclick="checkPassword()">
-                    Enter Diary
+                <button class="btn w-full" onclick="checkPassword()">
+                    <span id="login-btn-text">Enter Diary</span>
                     <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
                 </button>
             </div>
@@ -529,45 +714,139 @@
     </div>
 
     <!-- Main Application -->
-    <div class="main-app" id="main-app">
+    <div class="main-app hidden" id="main-app">
         <div class="container">
             <!-- Header -->
             <div class="header-card">
-                <div class="header-content">
-                    <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" class="logo" style="max-width: 9rem;">
-                    <h1 class="main-title">VPLY TELEPHONE DIARY</h1>
-                    <div class="title-underline"></div>
+                <div class="header-controls">
+                    <!-- Theme Toggle -->
+                    <button class="control-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle Theme">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                    
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <button class="control-btn" onclick="toggleLanguageDropdown()" id="language-btn">
+                            <span id="current-flag">🇺🇸</span>
+                            <span id="current-lang">EN</span>
+                        </button>
+                        <div class="language-dropdown" id="language-dropdown">
+                            <div class="language-option" onclick="setLanguage('en')">
+                                <span>🇺🇸</span>
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" onclick="setLanguage('hi')">
+                                <span>🇮🇳</span>
+                                <span>हिन्दी</span>
+                            </div>
+                            <div class="language-option" onclick="setLanguage('mr')">
+                                <span>🇮🇳</span>
+                                <span>मराठी</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Undo Button -->
+                    <button class="control-btn hidden" onclick="undoLastAction()" id="undo-btn" title="Undo Last Action">
+                        <span>↶</span>
+                    </button>
                 </div>
+                
+                <img src="https://dhruvparmar17.github.io/vply-centre-new/vplylogo.jpg" alt="VPLY Logo" class="logo" style="max-width: 9rem;">
+                <h1 class="main-title" id="main-title">VPLY TELEPHONE DIARY</h1>
+                <div class="title-underline"></div>
             </div>
 
             <!-- Search Section -->
             <div class="section-card">
-                <div class="search-container">
-                    <input type="text" id="search" placeholder="Search by company, category, brand, owner..." class="search-input" />
-                    <button class="btn btn-secondary search-btn" onclick="searchEntries()">
-                        🔍 Search
-                    </button>
+                <!-- Search Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('search')" id="tab-search">
+                        🔍 <span data-translate="search">Search</span>
+                    </div>
+                    <div class="tab" onclick="switchTab('recent')" id="tab-recent">
+                        🕒 <span data-translate="recent">Recent</span>
+                    </div>
+                    <div class="tab" onclick="switchTab('favorites')" id="tab-favorites">
+                        ⭐ <span data-translate="favorites">Favorites</span>
+                    </div>
                 </div>
-                <div id="search-results" class="search-results"></div>
+
+                <!-- Search Content -->
+                <div id="search-content">
+                    <div class="search-container">
+                        <input type="text" id="search" placeholder="Search by company, category, brand, owner..." class="search-input" oninput="showSearchSuggestions()" />
+                        <button class="btn btn-secondary" onclick="searchEntries()">
+                            🔍 <span data-translate="search">Search</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Suggestions -->
+                    <div id="search-suggestions" class="hidden" style="background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 0.75rem; margin-top: 0.5rem; max-height: 200px; overflow-y: auto;"></div>
+                    
+                    <!-- Category Filters -->
+                    <div class="category-filters">
+                        <div class="category-btn active" onclick="filterByCategory('all')" data-category="all">
+                            🏢 <span data-translate="all">All</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('plywood')" data-category="plywood">
+                            🪵 <span data-translate="plywood">Plywood</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('laminates')" data-category="laminates">
+                            ✨ <span data-translate="laminates">Laminates</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('hardware')" data-category="hardware">
+                            🔧 <span data-translate="hardware">Hardware</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('paints')" data-category="paints">
+                            🎨 <span data-translate="paints">Paints</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('tiles')" data-category="tiles">
+                            🏛️ <span data-translate="tiles">Tiles</span>
+                        </div>
+                        <div class="category-btn" onclick="filterByCategory('furniture')" data-category="furniture">
+                            🪑 <span data-translate="furniture">Furniture</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Content -->
+                <div id="recent-content" class="hidden">
+                    <div id="recent-entries"></div>
+                </div>
+
+                <!-- Favorites Content -->
+                <div id="favorites-content" class="hidden">
+                    <div id="favorite-entries"></div>
+                </div>
+
+                <!-- Search Results -->
+                <div id="search-results"></div>
             </div>
 
             <!-- Entry Form -->
             <div class="section-card">
-                <h2 class="section-title">Enter Company Details</h2>
+                <h2 class="section-title" data-translate="enter-details">Enter Company Details</h2>
                 
+                <!-- Basic Information -->
                 <div class="grid-2">
-                    <input id="company" placeholder="Company Name" />
-                    <input id="category" placeholder="Category" />
-                    <input id="brand" placeholder="Brand" />
-                    <input id="address" placeholder="Company Address" />
+                    <input id="company" placeholder="Company Name" data-translate-placeholder="company-name" />
+                    <input id="category" placeholder="Category" data-translate-placeholder="category" />
+                    <input id="brand" placeholder="Brand" data-translate-placeholder="brand" />
+                    <div class="flex gap-1">
+                        <input id="address" placeholder="Company Address" data-translate-placeholder="address" style="flex: 1;" />
+                        <button class="btn btn-secondary" onclick="getCurrentLocation()" id="location-btn" title="Get Current Location">
+                            📍
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Products Section -->
                 <div style="margin: 1.5rem 0;">
-                    <div class="products-header">
-                        <h3 style="color: #92400e; margin: 0;">Brand Products (Max 10)</h3>
-                        <button class="btn btn-green" onclick="addProductField()" style="width: auto; min-width: 150px;">
-                            ➕ Add Product
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 style="color: var(--text-primary); margin: 0;" data-translate="products">Brand Products (Max 10)</h3>
+                        <button class="btn btn-green btn-small" onclick="addProductField()">
+                            ➕ <span data-translate="add-product">Add Product</span>
                         </button>
                     </div>
                     <div id="product-fields"></div>
@@ -575,25 +854,41 @@
 
                 <!-- Contact Information -->
                 <div class="grid-2">
-                    <input id="owner" placeholder="Owner Name" />
-                    <input id="ownerPhone" placeholder="Owner Phone" />
-                    <input id="salesman" placeholder="Salesman Name" />
-                    <input id="salesmanPhone" placeholder="Salesman Phone" />
-                    <input id="godown" placeholder="Godown No." />
-                    <input id="gst" placeholder="GST No." />
+                    <input id="owner" placeholder="Owner Name" data-translate-placeholder="owner-name" />
+                    <input id="ownerPhone" placeholder="Owner Phone" data-translate-placeholder="owner-phone" />
+                    <input id="ownerEmail" placeholder="Owner Email" data-translate-placeholder="owner-email" />
+                    <input id="salesman" placeholder="Salesman Name" data-translate-placeholder="salesman-name" />
+                    <input id="salesmanPhone" placeholder="Salesman Phone" data-translate-placeholder="salesman-phone" />
+                    <input id="salesmanEmail" placeholder="Salesman Email" data-translate-placeholder="salesman-email" />
+                    <input id="godown" placeholder="Godown No." data-translate-placeholder="godown" />
+                    <input id="gst" placeholder="GST No." data-translate-placeholder="gst" />
                 </div>
 
-                <!-- File Upload -->
-                <div class="file-input">
-                    <input type="file" accept="image/*" id="cardImage" capture="environment" />
-                    <label for="cardImage" class="file-input-label">
-                        📷 Upload Business Card Image
-                    </label>
+                <!-- Notes -->
+                <textarea id="notes" placeholder="Additional Notes" data-translate-placeholder="notes" rows="3" style="resize: vertical;"></textarea>
+
+                <!-- File Uploads -->
+                <div class="grid-2">
+                    <div class="file-upload">
+                        <input type="file" accept="image/*" id="cardImage" multiple capture="environment" onchange="handleImageUpload(this, 'card')" />
+                        <label for="cardImage" class="file-upload-label">
+                            📷 <span data-translate="upload-card">Upload Business Card</span>
+                        </label>
+                    </div>
+                    <div class="file-upload">
+                        <input type="file" accept="image/*" id="productImages" multiple capture="environment" onchange="handleImageUpload(this, 'product')" />
+                        <label for="productImages" class="file-upload-label">
+                            🖼️ <span data-translate="upload-products">Upload Product Images</span>
+                        </label>
+                    </div>
                 </div>
+
+                <!-- Image Previews -->
+                <div id="image-previews" class="image-gallery"></div>
 
                 <!-- Save Button -->
-                <button class="btn" onclick="saveData()" style="margin-top: 1.5rem; font-size: 1.125rem; padding: 1rem;">
-                    💾 Save Entry
+                <button class="btn w-full" onclick="saveData()" style="margin-top: 1.5rem; font-size: 1.125rem; padding: 1rem;">
+                    💾 <span data-translate="save-entry">Save Entry</span>
                     <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
                 </button>
             </div>
@@ -603,8 +898,21 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 
     <script>
+        // Global variables
+        let currentLanguage = 'en';
+        let currentTheme = 'light';
+        let productCount = 0;
+        let currentLocation = null;
+        let favorites = new Set();
+        let recentEntries = [];
+        let undoStack = [];
+        let currentFilter = 'all';
+        let allEntries = {};
+        let searchSuggestions = [];
+
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDJXU1dwGZ7x11EC8-lI3u468NpuaZQfT8",
@@ -618,13 +926,268 @@
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let productCount = 0;
+        const storage = firebase.storage();
 
-        function showLoginScreen() {
-            document.getElementById("login-screen").style.display = "flex";
-            document.getElementById("main-app").style.display = "none";
+        // Translations
+        const translations = {
+            en: {
+                'login-title': 'VPLY Access',
+                'login-subtitle': 'Enter password to continue',
+                'login-btn': 'Enter Diary',
+                'wrong-password': 'Wrong password!',
+                'welcome': 'Welcome to VPLY Telephone Diary!',
+                'search': 'Search',
+                'recent': 'Recent',
+                'favorites': 'Favorites',
+                'all': 'All',
+                'plywood': 'Plywood',
+                'laminates': 'Laminates',
+                'hardware': 'Hardware',
+                'paints': 'Paints',
+                'tiles': 'Tiles',
+                'furniture': 'Furniture',
+                'enter-details': 'Enter Company Details',
+                'company-name': 'Company Name',
+                'category': 'Category',
+                'brand': 'Brand',
+                'address': 'Company Address',
+                'products': 'Brand Products (Max 10)',
+                'add-product': 'Add Product',
+                'owner-name': 'Owner Name',
+                'owner-phone': 'Owner Phone',
+                'owner-email': 'Owner Email',
+                'salesman-name': 'Salesman Name',
+                'salesman-phone': 'Salesman Phone',
+                'salesman-email': 'Salesman Email',
+                'godown': 'Godown No.',
+                'gst': 'GST No.',
+                'notes': 'Additional Notes',
+                'upload-card': 'Upload Business Card',
+                'upload-products': 'Upload Product Images',
+                'save-entry': 'Save Entry',
+                'saved': 'Entry saved successfully!',
+                'updated': 'Entry updated successfully!',
+                'deleted': 'Entry deleted successfully!',
+                'location-obtained': 'Location obtained successfully!',
+                'max-products': 'Maximum 10 products allowed!',
+                'confirm-delete': 'Are you sure you want to delete this entry?',
+                'no-results': 'No matching entries found.',
+                'found-results': 'Found {count} matching entries!',
+                'enter-search': 'Please enter a search term.',
+                'favorite-added': 'Added to favorites!',
+                'favorite-removed': 'Removed from favorites!',
+                'undo-success': 'Action undone successfully!',
+                'no-undo': 'Nothing to undo.',
+                'call': 'Call',
+                'email': 'Email',
+                'whatsapp': 'WhatsApp',
+                'maps': 'Maps',
+                'directions': 'Directions'
+            },
+            hi: {
+                'login-title': 'VPLY पहुंच',
+                'login-subtitle': 'जारी रखने के लिए पासवर्ड दर्ज करें',
+                'login-btn': 'डायरी में प्रवेश करें',
+                'wrong-password': 'गलत पासवर्ड!',
+                'welcome': 'VPLY टेलीफोन डायरी में आपका स्वागत है!',
+                'search': 'खोजें',
+                'recent': 'हाल की',
+                'favorites': 'पसंदीदा',
+                'all': 'सभी',
+                'plywood': 'प्लाइवुड',
+                'laminates': 'लैमिनेट्स',
+                'hardware': 'हार्डवेयर',
+                'paints': 'रंग',
+                'tiles': 'टाइल्स',
+                'furniture': 'फर्नीचर',
+                'enter-details': 'कंपनी विवरण दर्ज करें',
+                'company-name': 'कंपनी का नाम',
+                'category': 'श्रेणी',
+                'brand': 'ब्रांड',
+                'address': 'कंपनी का पता',
+                'products': 'ब्रांड उत्पाद (अधिकतम 10)',
+                'add-product': 'उत्पाद जोड़ें',
+                'owner-name': 'मालिक का नाम',
+                'owner-phone': 'मालिक का फोन',
+                'owner-email': 'मालिक का ईमेल',
+                'salesman-name': 'सेल्समैन का नाम',
+                'salesman-phone': 'सेल्समैन का फोन',
+                'salesman-email': 'सेल्समैन का ईमेल',
+                'godown': 'गोदाम नंबर',
+                'gst': 'GST नंबर',
+                'notes': 'अतिरिक्त नोट्स',
+                'upload-card': 'बिजनेस कार्ड अपलोड करें',
+                'upload-products': 'उत्पाद छवियां अपलोड करें',
+                'save-entry': 'प्रविष्टि सहेजें',
+                'saved': 'प्रविष्टि सफलतापूर्वक सहेजी गई!',
+                'updated': 'प्रविष्टि सफलतापूर्वक अपडेट की गई!',
+                'deleted': 'प्रविष्टि सफलतापूर्वक हटाई गई!',
+                'location-obtained': 'स्थान सफलतापूर्वक प्राप्त किया गया!',
+                'max-products': 'अधिकतम 10 उत्पादों की अनुमति है!',
+                'confirm-delete': 'क्या आप वाकई इस प्रविष्टि को हटाना चाहते हैं?',
+                'no-results': 'कोई मिलान प्रविष्टि नहीं मिली।',
+                'found-results': '{count} मिलान प्रविष्टियां मिलीं!',
+                'enter-search': 'कृपया खोज शब्द दर्ज करें।',
+                'favorite-added': 'पसंदीदा में जोड़ा गया!',
+                'favorite-removed': 'पसंदीदा से हटाया गया!',
+                'undo-success': 'कार्य सफलतापूर्वक पूर्ववत किया गया!',
+                'no-undo': 'पूर्ववत करने के लिए कुछ नहीं।',
+                'call': 'कॉल करें',
+                'email': 'ईमेल',
+                'whatsapp': 'व्हाट्सऐप',
+                'maps': 'मैप्स',
+                'directions': 'दिशा-निर्देश'
+            },
+            mr: {
+                'login-title': 'VPLY प्रवेश',
+                'login-subtitle': 'सुरू ठेवण्यासाठी पासवर्ड टाका',
+                'login-btn': 'डायरीमध्ये प्रवेश करा',
+                'wrong-password': 'चुकीचा पासवर्ड!',
+                'welcome': 'VPLY टेलिफोन डायरीमध्ये आपले स्वागत आहे!',
+                'search': 'शोधा',
+                'recent': 'अलीकडील',
+                'favorites': 'आवडीच्या',
+                'all': 'सर्व',
+                'plywood': 'प्लायवुड',
+                'laminates': 'लॅमिनेट्स',
+                'hardware': 'हार्डवेअर',
+                'paints': 'रंग',
+                'tiles': 'फरशा',
+                'furniture': 'फर्निचर',
+                'enter-details': 'कंपनीचे तपशील भरा',
+                'company-name': 'कंपनीचे नाव',
+                'category': 'श्रेणी',
+                'brand': 'ब्रँड',
+                'address': 'कंपनीचा पत्ता',
+                'products': 'ब्रँड उत्पादने (कमाल 10)',
+                'add-product': 'उत्पादन जोडा',
+                'owner-name': 'मालकाचे नाव',
+                'owner-phone': 'मालकाचा फोन',
+                'owner-email': 'मालकाचा ईमेल',
+                'salesman-name': 'सेल्समनचे नाव',
+                'salesman-phone': 'सेल्समनचा फोन',
+                'salesman-email': 'सेल्समनचा ईमेल',
+                'godown': 'गोदाम क्र.',
+                'gst': 'GST क्र.',
+                'notes': 'अतिरिक्त टिपा',
+                'upload-card': 'बिझनेस कार्ड अपलोड करा',
+                'upload-products': 'उत्पादन फोटो अपलोड करा',
+                'save-entry': 'नोंद जतन करा',
+                'saved': 'नोंद यशस्वीरित्या जतन केली!',
+                'updated': 'नोंद यशस्वीरित्या अपडेट केली!',
+                'deleted': 'नोंद यशस्वीरित्या हटवली!',
+                'location-obtained': 'स्थान यशस्वीरित्या मिळवले!',
+                'max-products': 'कमाल 10 उत्पादनांना परवानगी आहे!',
+                'confirm-delete': 'तुम्हाला खरंच ही नोंद हटवायची आहे का?',
+                'no-results': 'कोणतीही जुळणारी नोंद सापडली नाही.',
+                'found-results': '{count} जुळणाऱ्या नोंदी सापडल्या!',
+                'enter-search': 'कृपया शोध शब्द टाका.',
+                'favorite-added': 'आवडीच्या यादीत जोडले!',
+                'favorite-removed': 'आवडीच्या यादीतून काढले!',
+                'undo-success': 'कृती यशस्वीरित्या पूर्ववत केली!',
+                'no-undo': 'पूर्ववत करण्यासाठी काहीही नाही.',
+                'call': 'कॉल करा',
+                'email': 'ईमेल',
+                'whatsapp': 'व्हाट्सअप',
+                'maps': 'नकाशे',
+                'directions': 'दिशानिर्देश'
+            }
+        };
+
+        // Initialize app
+        function initializeApp() {
+            loadSettings();
+            updateLanguage();
+            updateTheme();
+            showLoginScreen();
+            loadAllEntries();
         }
 
+        // Load settings from localStorage
+        function loadSettings() {
+            currentLanguage = localStorage.getItem('vply-language') || 'en';
+            currentTheme = localStorage.getItem('vply-theme') || 'light';
+            favorites = new Set(JSON.parse(localStorage.getItem('vply-favorites') || '[]'));
+            recentEntries = JSON.parse(localStorage.getItem('vply-recent') || '[]');
+        }
+
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('vply-language', currentLanguage);
+            localStorage.setItem('vply-theme', currentTheme);
+            localStorage.setItem('vply-favorites', JSON.stringify([...favorites]));
+            localStorage.setItem('vply-recent', JSON.stringify(recentEntries));
+        }
+
+        // Translation function
+        function t(key, params = {}) {
+            let text = translations[currentLanguage][key] || key;
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+            return text;
+        }
+
+        // Update language
+        function updateLanguage() {
+            const flags = { en: '🇺🇸', hi: '🇮🇳', mr: '🇮🇳' };
+            const names = { en: 'EN', hi: 'हि', mr: 'मर' };
+            
+            document.getElementById('current-flag').textContent = flags[currentLanguage];
+            document.getElementById('current-lang').textContent = names[currentLanguage];
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                el.textContent = t(key);
+            });
+            
+            document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-translate-placeholder');
+                el.placeholder = t(key);
+            });
+            
+            // Update specific elements
+            document.getElementById('login-title').textContent = t('login-title');
+            document.getElementById('login-subtitle').textContent = t('login-subtitle');
+            document.getElementById('login-btn-text').textContent = t('login-btn');
+            document.getElementById('main-title').textContent = 'VPLY ' + (currentLanguage === 'hi' ? 'टेलीफोन डायरी' : currentLanguage === 'mr' ? 'टेलिफोन डायरी' : 'TELEPHONE DIARY');
+        }
+
+        // Set language
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            updateLanguage();
+            saveSettings();
+            toggleLanguageDropdown();
+        }
+
+        // Toggle language dropdown
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('language-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Update theme
+        function updateTheme() {
+            document.body.setAttribute('data-theme', currentTheme);
+            document.getElementById('theme-icon').textContent = currentTheme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            updateTheme();
+            saveSettings();
+        }
+
+        // Show login screen
+        function showLoginScreen() {
+            document.getElementById("login-screen").classList.remove('hidden');
+            document.getElementById("main-app").classList.add('hidden');
+        }
+
+        // Toggle password visibility
         function togglePassword() {
             const passwordInput = document.getElementById('passwordInput');
             const toggleIcon = document.getElementById('toggleIcon');
@@ -638,44 +1201,433 @@
             }
         }
 
+        // Check password
         function checkPassword() {
             const password = document.getElementById('passwordInput').value;
             const passwordInput = document.getElementById('passwordInput');
             
             if (password === "Vply@1") {
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("main-app").style.display = "block";
-                showToast("Welcome to VPLY Telephone Diary!", "success");
+                document.getElementById("login-screen").classList.add('hidden');
+                document.getElementById("main-app").classList.remove('hidden');
+                showToast(t('welcome'), "success");
+                addProductField(); // Add initial product field
             } else {
-                passwordInput.classList.add('shake', 'error');
-                showToast("Wrong password!", "error");
+                passwordInput.classList.add('shake');
+                showToast(t('wrong-password'), "error");
                 setTimeout(() => {
-                    passwordInput.classList.remove('shake', 'error');
+                    passwordInput.classList.remove('shake');
                 }, 500);
             }
         }
 
+        // Load all entries from Firebase
+        function loadAllEntries() {
+            db.ref("entries").on("value", (snapshot) => {
+                allEntries = snapshot.val() || {};
+                updateSearchSuggestions();
+                displayCurrentView();
+            });
+        }
+
+        // Update search suggestions
+        function updateSearchSuggestions() {
+            searchSuggestions = [];
+            Object.values(allEntries).forEach(entry => {
+                if (entry.company) searchSuggestions.push(entry.company);
+                if (entry.category) searchSuggestions.push(entry.category);
+                if (entry.brand) searchSuggestions.push(entry.brand);
+                if (entry.owner) searchSuggestions.push(entry.owner);
+                if (entry.salesman) searchSuggestions.push(entry.salesman);
+            });
+            searchSuggestions = [...new Set(searchSuggestions)]; // Remove duplicates
+        }
+
+        // Show search suggestions
+        function showSearchSuggestions() {
+            const query = document.getElementById('search').value.toLowerCase().trim();
+            const suggestionsDiv = document.getElementById('search-suggestions');
+            
+            if (query.length < 2) {
+                suggestionsDiv.classList.add('hidden');
+                return;
+            }
+            
+            const filtered = searchSuggestions.filter(suggestion => 
+                suggestion.toLowerCase().includes(query)
+            ).slice(0, 8);
+            
+            if (filtered.length > 0) {
+                suggestionsDiv.innerHTML = filtered.map(suggestion => 
+                    `<div style="padding: 0.75rem; cursor: pointer; border-bottom: 1px solid var(--border-color);" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>`
+                ).join('');
+                suggestionsDiv.classList.remove('hidden');
+            } else {
+                suggestionsDiv.classList.add('hidden');
+            }
+        }
+
+        // Select suggestion
+        function selectSuggestion(suggestion) {
+            document.getElementById('search').value = suggestion;
+            document.getElementById('search-suggestions').classList.add('hidden');
+            searchEntries();
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            // Update tab appearance
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('search-content').classList.toggle('hidden', tab !== 'search');
+            document.getElementById('recent-content').classList.toggle('hidden', tab !== 'recent');
+            document.getElementById('favorites-content').classList.toggle('hidden', tab !== 'favorites');
+            
+            // Load content based on tab
+            if (tab === 'recent') {
+                displayRecentEntries();
+            } else if (tab === 'favorites') {
+                displayFavoriteEntries();
+            }
+            
+            // Clear search results when switching tabs
+            if (tab !== 'search') {
+                document.getElementById('search-results').innerHTML = '';
+            }
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // Update button appearance
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-category="${category}"]`).classList.add('active');
+            
+            // Filter and display entries
+            displayFilteredEntries();
+        }
+
+        // Display filtered entries
+        function displayFilteredEntries() {
+            let filtered = Object.entries(allEntries);
+            
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(([_, entry]) => 
+                    entry.category && entry.category.toLowerCase().includes(currentFilter.toLowerCase())
+                );
+            }
+            
+            displayEntries(filtered, 'search-results');
+        }
+
+        // Display current view
+        function displayCurrentView() {
+            const activeTab = document.querySelector('.tab.active').id.replace('tab-', '');
+            
+            if (activeTab === 'search') {
+                displayFilteredEntries();
+            } else if (activeTab === 'recent') {
+                displayRecentEntries();
+            } else if (activeTab === 'favorites') {
+                displayFavoriteEntries();
+            }
+        }
+
+        // Display recent entries
+        function displayRecentEntries() {
+            const recentData = recentEntries.map(id => [id, allEntries[id]]).filter(([_, entry]) => entry);
+            displayEntries(recentData, 'recent-entries');
+        }
+
+        // Display favorite entries
+        function displayFavoriteEntries() {
+            const favoriteData = [...favorites].map(id => [id, allEntries[id]]).filter(([_, entry]) => entry);
+            displayEntries(favoriteData, 'favorite-entries');
+        }
+
+        // Search entries
+        function searchEntries() {
+            const query = document.getElementById("search").value.toLowerCase().trim();
+            
+            if (!query) {
+                showToast(t('enter-search'), "error");
+                return;
+            }
+            
+            const filtered = Object.entries(allEntries).filter(([_, entry]) => {
+                const searchableText = Object.values(entry).join(" ").toLowerCase();
+                return searchableText.includes(query);
+            });
+            
+            displayEntries(filtered, 'search-results');
+            
+            if (filtered.length === 0) {
+                showToast(t('no-results'), "error");
+            } else {
+                showToast(t('found-results', { count: filtered.length }), "success");
+            }
+            
+            document.getElementById('search-suggestions').classList.add('hidden');
+        }
+
+        // Display entries
+        function displayEntries(entries, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (entries.length === 0) {
+                container.innerHTML = `<p class="text-center" style="padding: 2rem; color: var(--text-secondary);">${t('no-results')}</p>`;
+                return;
+            }
+            
+            container.innerHTML = entries.map(([key, entry]) => createCompanyCard(key, entry)).join('');
+        }
+
+        // Create company card HTML
+        function createCompanyCard(key, entry) {
+            const isFavorite = favorites.has(key);
+            const products = [];
+            for (let i = 1; i <= 10; i++) {
+                if (entry[`product${i}`]) products.push(entry[`product${i}`]);
+            }
+            
+            return `
+                <div class="company-card fade-in">
+                    <div class="company-header">
+                        <div class="company-info">
+                            <h3>${entry.company || 'N/A'}</h3>
+                            <div class="company-tags">
+                                <span class="tag">${entry.category || 'N/A'}</span>
+                                <span class="tag">${entry.brand || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${key}')">
+                            ${isFavorite ? '⭐' : '☆'}
+                        </button>
+                    </div>
+                    
+                    ${products.length > 0 ? `
+                        <div class="products-section">
+                            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">${t('products')}:</h4>
+                            <div class="products-grid">
+                                ${products.slice(0, 5).map(product => `<span class="product-tag">${product}</span>`).join('')}
+                                ${products.length > 5 ? `<span class="product-tag">+${products.length - 5} more</span>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="contact-section">
+                        ${entry.owner ? `
+                            <div class="contact-item">
+                                <div class="contact-info">
+                                    <div class="contact-name">${entry.owner} (Owner)</div>
+                                    <div class="contact-phone">${entry.ownerPhone || 'N/A'}</div>
+                                </div>
+                                <div class="contact-actions">
+                                    ${entry.ownerPhone ? `<a href="tel:${entry.ownerPhone}" class="action-btn call-btn" onclick="addToRecent('${key}')" title="${t('call')}">📞</a>` : ''}
+                                    ${entry.ownerEmail ? `<a href="mailto:${entry.ownerEmail}" class="action-btn email-btn" onclick="addToRecent('${key}')" title="${t('email')}">✉️</a>` : ''}
+                                    ${entry.ownerPhone ? `<a href="https://wa.me/91${entry.ownerPhone}?text=Hello%20${encodeURIComponent(entry.owner)},%20this%20is%20from%20VPLY" target="_blank" class="action-btn whatsapp-btn" onclick="addToRecent('${key}')" title="${t('whatsapp')}">💬</a>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${entry.salesman ? `
+                            <div class="contact-item">
+                                <div class="contact-info">
+                                    <div class="contact-name">${entry.salesman} (Salesman)</div>
+                                    <div class="contact-phone">${entry.salesmanPhone || 'N/A'}</div>
+                                </div>
+                                <div class="contact-actions">
+                                    ${entry.salesmanPhone ? `<a href="tel:${entry.salesmanPhone}" class="action-btn call-btn" onclick="addToRecent('${key}')" title="${t('call')}">📞</a>` : ''}
+                                    ${entry.salesmanEmail ? `<a href="mailto:${entry.salesmanEmail}" class="action-btn email-btn" onclick="addToRecent('${key}')" title="${t('email')}">✉️</a>` : ''}
+                                    ${entry.salesmanPhone ? `<a href="https://wa.me/91${entry.salesmanPhone}?text=Hello%20${encodeURIComponent(entry.salesman)},%20this%20is%20from%20VPLY" target="_blank" class="action-btn whatsapp-btn" onclick="addToRecent('${key}')" title="${t('whatsapp')}">💬</a>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${entry.address || entry.latitude ? `
+                        <div class="contact-section">
+                            <div class="contact-item">
+                                <div class="contact-info">
+                                    <div class="contact-name">📍 ${entry.address || 'Location Available'}</div>
+                                    ${entry.godown ? `<div class="contact-phone">Godown: ${entry.godown}</div>` : ''}
+                                </div>
+                                <div class="contact-actions">
+                                    ${entry.latitude ? `<a href="https://www.google.com/maps?q=${entry.latitude},${entry.longitude}" target="_blank" class="action-btn map-btn" onclick="addToRecent('${key}')" title="${t('maps')}">🗺️</a>` : ''}
+                                    ${entry.latitude ? `<button class="action-btn map-btn" onclick="getDirections(${entry.latitude}, ${entry.longitude}); addToRecent('${key}')" title="${t('directions')}">🧭</button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${entry.gst || entry.notes ? `
+                        <div class="contact-section">
+                            ${entry.gst ? `<div style="margin-bottom: 0.5rem;"><strong>GST:</strong> ${entry.gst}</div>` : ''}
+                            ${entry.notes ? `<div><strong>Notes:</strong> ${entry.notes}</div>` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${entry.cardImages || entry.productImages ? `
+                        <div class="image-gallery">
+                            ${entry.cardImages ? entry.cardImages.split(',').map(img => `<img src="${img}" class="gallery-image" onclick="window.open('${img}', '_blank')" alt="Business Card" />`).join('') : ''}
+                            ${entry.productImages ? entry.productImages.split(',').map(img => `<img src="${img}" class="gallery-image" onclick="window.open('${img}', '_blank')" alt="Product" />`).join('') : ''}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex gap-1 mt-2">
+                        <button class="btn btn-secondary btn-small" onclick="editEntry('${key}')" style="flex: 1;">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn btn-red btn-small" onclick="deleteEntry('${key}')">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-1" style="font-size: 0.75rem; color: var(--text-secondary);">
+                        Added: ${entry.Timestamp || 'N/A'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle favorite
+        function toggleFavorite(key) {
+            if (favorites.has(key)) {
+                favorites.delete(key);
+                showToast(t('favorite-removed'), 'info');
+            } else {
+                favorites.add(key);
+                showToast(t('favorite-added'), 'success');
+            }
+            saveSettings();
+            displayCurrentView();
+        }
+
+        // Add to recent
+        function addToRecent(key) {
+            recentEntries = recentEntries.filter(id => id !== key);
+            recentEntries.unshift(key);
+            recentEntries = recentEntries.slice(0, 20); // Keep only last 20
+            saveSettings();
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            const btn = document.getElementById('location-btn');
+            btn.textContent = '⏳';
+            btn.disabled = true;
+            
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported', 'error');
+                btn.textContent = '📍';
+                btn.disabled = false;
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+                    
+                    // Try to get address from coordinates
+                    fetch(`https://api.opencagedata.com/geocode/v1/json?q=${currentLocation.latitude}+${currentLocation.longitude}&key=YOUR_API_KEY`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.results && data.results.length > 0) {
+                                document.getElementById('address').value = data.results[0].formatted;
+                            } else {
+                                document.getElementById('address').value = `${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)}`;
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('address').value = `${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)}`;
+                        });
+                    
+                    showToast(t('location-obtained'), 'success');
+                    btn.textContent = '✅';
+                    setTimeout(() => {
+                        btn.textContent = '📍';
+                        btn.disabled = false;
+                    }, 2000);
+                },
+                (error) => {
+                    showToast('Failed to get location: ' + error.message, 'error');
+                    btn.textContent = '📍';
+                    btn.disabled = false;
+                }
+            );
+        }
+
+        // Get directions
+        function getDirections(lat, lng) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const url = `https://www.google.com/maps/dir/${position.coords.latitude},${position.coords.longitude}/${lat},${lng}`;
+                        window.open(url, '_blank');
+                    },
+                    () => {
+                        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+                        window.open(url, '_blank');
+                    }
+                );
+            } else {
+                const url = `https://www.google.com/maps?q=${lat},${lng}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        // Add product field
         function addProductField(value = "") {
             if (productCount >= 10) {
-                showToast("Maximum 10 products allowed!", "error");
+                showToast(t('max-products'), "error");
                 return;
             }
             
             const id = `product${productCount}`;
             const div = document.createElement("div");
-            div.className = "product-item";
+            div.className = "flex gap-1 mb-1";
             div.innerHTML = `
-                <input id="${id}" placeholder="Product ${productCount + 1}" value="${value}" class="product-input" />
-                ${productCount > 0 ? `<button class="btn btn-red delete-product-btn" onclick="this.parentNode.remove(); productCount--;">🗑️</button>` : ''}
+                <input id="${id}" placeholder="Product ${productCount + 1}" value="${value}" style="flex: 1;" />
+                ${productCount > 0 ? `<button class="btn btn-red btn-small" onclick="this.parentNode.remove(); productCount--;" style="width: 50px;">🗑️</button>` : ''}
             `;
             document.getElementById("product-fields").appendChild(div);
             productCount++;
         }
 
+        // Handle image upload
+        function handleImageUpload(input, type) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
+            
+            const previewContainer = document.getElementById('image-previews');
+            
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'gallery-image';
+                        img.onclick = () => window.open(e.target.result, '_blank');
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            showToast(`${files.length} image(s) selected for ${type}`, 'success');
+        }
+
+        // Save data
         function saveData() {
             const saveBtn = event.target;
             saveBtn.classList.add('loading');
-            saveBtn.textContent = 'Saving...';
+            saveBtn.innerHTML = '⏳ Saving...';
             
             const products = [];
             for (let i = 0; i < 10; i++) {
@@ -701,31 +1653,48 @@
                 address: document.getElementById("address").value.trim(),
                 owner: document.getElementById("owner").value.trim(),
                 ownerPhone: document.getElementById("ownerPhone").value.trim(),
+                ownerEmail: document.getElementById("ownerEmail").value.trim(),
                 salesman: document.getElementById("salesman").value.trim(),
                 salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
+                salesmanEmail: document.getElementById("salesmanEmail").value.trim(),
                 godown: document.getElementById("godown").value.trim(),
-                gst: document.getElementById("gst").value.trim()
+                gst: document.getElementById("gst").value.trim(),
+                notes: document.getElementById("notes").value.trim(),
+                latitude: currentLocation ? currentLocation.latitude : null,
+                longitude: currentLocation ? currentLocation.longitude : null
             };
             
+            // Add to undo stack
+            undoStack.push({
+                action: 'add',
+                data: obj,
+                timestamp: Date.now()
+            });
+            updateUndoButton();
+            
             db.ref("entries").push(obj, () => {
-                showToast("Entry saved successfully! ✅", "success");
+                showToast(t('saved'), "success");
                 sendToSheet(obj);
                 clearInputs();
                 saveBtn.classList.remove('loading');
-                saveBtn.innerHTML = '💾 Save Entry <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>';
+                saveBtn.innerHTML = '💾 <span data-translate="save-entry">Save Entry</span> <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>';
+                updateLanguage(); // Refresh translations
             });
         }
 
+        // Clear inputs
         function clearInputs() {
-            document.querySelectorAll('input').forEach(i => { 
-                if(i.type !== 'file') i.value = ''; 
+            document.querySelectorAll('input, textarea').forEach(input => { 
+                if(input.type !== 'file') input.value = ''; 
             });
             document.getElementById("product-fields").innerHTML = '';
+            document.getElementById("image-previews").innerHTML = '';
             productCount = 0;
+            currentLocation = null;
             addProductField(); // Add initial product field
-            document.getElementById("search-results").innerHTML = "";
         }
 
+        // Send to Google Sheets
         function sendToSheet(data) {
             fetch("https://script.google.com/macros/s/AKfycbxDuvf5L628eJj_HVssfCmGi_qZi-OjKBy769G0CGIiGvC2or5AbxewkcWptTsILN5b1w/exec", {
                 method: "POST",
@@ -735,202 +1704,216 @@
             });
         }
 
-        function searchEntries() {
-            const query = document.getElementById("search").value.toLowerCase().trim();
-            const resultDiv = document.getElementById("search-results");
-            resultDiv.innerHTML = "";
+        // Edit entry
+        function editEntry(key) {
+            const entry = allEntries[key];
+            if (!entry) return;
             
-            if (!query) {
-                showToast("Please enter a search term.", "error");
+            // Fill form with entry data
+            document.getElementById("company").value = entry.company || '';
+            document.getElementById("category").value = entry.category || '';
+            document.getElementById("brand").value = entry.brand || '';
+            document.getElementById("address").value = entry.address || '';
+            document.getElementById("owner").value = entry.owner || '';
+            document.getElementById("ownerPhone").value = entry.ownerPhone || '';
+            document.getElementById("ownerEmail").value = entry.ownerEmail || '';
+            document.getElementById("salesman").value = entry.salesman || '';
+            document.getElementById("salesmanPhone").value = entry.salesmanPhone || '';
+            document.getElementById("salesmanEmail").value = entry.salesmanEmail || '';
+            document.getElementById("godown").value = entry.godown || '';
+            document.getElementById("gst").value = entry.gst || '';
+            document.getElementById("notes").value = entry.notes || '';
+            
+            // Set location if available
+            if (entry.latitude && entry.longitude) {
+                currentLocation = {
+                    latitude: entry.latitude,
+                    longitude: entry.longitude
+                };
+            }
+            
+            // Clear and add product fields
+            document.getElementById("product-fields").innerHTML = '';
+            productCount = 0;
+            
+            for (let i = 1; i <= 10; i++) {
+                if (entry[`product${i}`]) {
+                    addProductField(entry[`product${i}`]);
+                }
+            }
+            
+            if (productCount === 0) {
+                addProductField();
+            }
+            
+            // Store original data for undo
+            window.editingKey = key;
+            window.originalData = { ...entry };
+            
+            // Change save button to update
+            const saveBtn = document.querySelector('.btn.w-full');
+            saveBtn.innerHTML = '✏️ <span data-translate="update-entry">Update Entry</span>';
+            saveBtn.onclick = updateEntry;
+            
+            // Scroll to form
+            document.querySelector('.section-card:last-child').scrollIntoView({ behavior: 'smooth' });
+            
+            showToast('Entry loaded for editing', 'info');
+        }
+
+        // Update entry
+        function updateEntry() {
+            if (!window.editingKey) return;
+            
+            const saveBtn = event.target;
+            saveBtn.classList.add('loading');
+            saveBtn.innerHTML = '⏳ Updating...';
+            
+            const products = [];
+            for (let i = 0; i < 10; i++) {
+                let el = document.getElementById(`product${i}`);
+                if (el && el.value.trim()) products.push(el.value.trim());
+            }
+            
+            const updates = {
+                Timestamp: new Date().toLocaleString(),
+                company: document.getElementById("company").value.trim(),
+                category: document.getElementById("category").value.trim(),
+                brand: document.getElementById("brand").value.trim(),
+                product1: products[0] || "",
+                product2: products[1] || "",
+                product3: products[2] || "",
+                product4: products[3] || "",
+                product5: products[4] || "",
+                product6: products[5] || "",
+                product7: products[6] || "",
+                product8: products[7] || "",
+                product9: products[8] || "",
+                product10: products[9] || "",
+                address: document.getElementById("address").value.trim(),
+                owner: document.getElementById("owner").value.trim(),
+                ownerPhone: document.getElementById("ownerPhone").value.trim(),
+                ownerEmail: document.getElementById("ownerEmail").value.trim(),
+                salesman: document.getElementById("salesman").value.trim(),
+                salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
+                salesmanEmail: document.getElementById("salesmanEmail").value.trim(),
+                godown: document.getElementById("godown").value.trim(),
+                gst: document.getElementById("gst").value.trim(),
+                notes: document.getElementById("notes").value.trim(),
+                latitude: currentLocation ? currentLocation.latitude : null,
+                longitude: currentLocation ? currentLocation.longitude : null
+            };
+            
+            // Add to undo stack
+            undoStack.push({
+                action: 'update',
+                key: window.editingKey,
+                originalData: window.originalData,
+                newData: updates,
+                timestamp: Date.now()
+            });
+            updateUndoButton();
+            
+            db.ref(`entries/${window.editingKey}`).update(updates, () => {
+                showToast(t('updated'), "success");
+                sendToSheet(updates);
+                clearInputs();
+                
+                // Reset save button
+                saveBtn.classList.remove('loading');
+                saveBtn.innerHTML = '💾 <span data-translate="save-entry">Save Entry</span> <div class="pulse" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>';
+                saveBtn.onclick = saveData;
+                
+                // Clear editing state
+                window.editingKey = null;
+                window.originalData = null;
+                
+                updateLanguage(); // Refresh translations
+            });
+        }
+
+        // Delete entry
+        function deleteEntry(key) {
+            if (!confirm(t('confirm-delete'))) return;
+            
+            const entry = allEntries[key];
+            
+            // Add to undo stack
+            undoStack.push({
+                action: 'delete',
+                key: key,
+                data: entry,
+                timestamp: Date.now()
+            });
+            updateUndoButton();
+            
+            db.ref(`entries/${key}`).remove(() => {
+                showToast(t('deleted'), "success");
+                
+                // Remove from favorites and recent if present
+                favorites.delete(key);
+                recentEntries = recentEntries.filter(id => id !== key);
+                saveSettings();
+            });
+        }
+
+        // Undo last action
+        function undoLastAction() {
+            if (undoStack.length === 0) {
+                showToast(t('no-undo'), 'info');
                 return;
             }
             
-            showToast("Searching...", "info");
+            const lastAction = undoStack.pop();
+            updateUndoButton();
             
-            db.ref("entries").once("value", (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    showToast("No entries found.", "error");
-                    return;
-                }
-                
-                let output = "";
-                let count = 0;
-                
-                Object.entries(data).forEach(([key, entry]) => {
-                    const matchContent = Object.values(entry).join(" ").toLowerCase();
-                    if (matchContent.includes(query)) {
-                        count++;
-                        output += `
-                            <div class="result-item">
-                                <div class="result-grid">
-                                    <div>
-                                        <div class="result-field">
-                                            <span class="result-label">Company:</span>
-                                            <input data-key="${key}" data-field="company" value="${entry.company || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Category:</span>
-                                            <input data-key="${key}" data-field="category" value="${entry.category || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Brand:</span>
-                                            <input data-key="${key}" data-field="brand" value="${entry.brand || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Address:</span>
-                                            <input data-key="${key}" data-field="address" value="${entry.address || ''}" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="result-field">
-                                            <span class="result-label">Owner:</span>
-                                            <input data-key="${key}" data-field="owner" value="${entry.owner || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Owner Phone:</span>
-                                            <input data-key="${key}" data-field="ownerPhone" value="${entry.ownerPhone || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Salesman:</span>
-                                            <input data-key="${key}" data-field="salesman" value="${entry.salesman || ''}" />
-                                        </div>
-                                        <div class="result-field">
-                                            <span class="result-label">Salesman Phone:</span>
-                                            <input data-key="${key}" data-field="salesmanPhone" value="${entry.salesmanPhone || ''}" />
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div style="margin: 1rem 0;">
-                                    <strong style="color: #92400e;">Products:</strong><br>
-                                    ${[...Array(10).keys()].map(i => 
-                                        `<input data-key="${key}" data-field="product${i+1}" value="${entry[`product${i+1}`] || ""}" placeholder="Product ${i+1}" style="margin: 0.25rem 0; display: ${entry[`product${i+1}`] || i === 0 ? 'block' : 'none'};" />`
-                                    ).join("")}
-                                </div>
-                                
-                                <div class="grid-2" style="margin: 1rem 0;">
-                                    <div class="result-field">
-                                        <span class="result-label">Godown:</span>
-                                        <input data-key="${key}" data-field="godown" value="${entry.godown || ''}" />
-                                    </div>
-                                    <div class="result-field">
-                                        <span class="result-label">GST:</span>
-                                        <input data-key="${key}" data-field="gst" value="${entry.gst || ''}" />
-                                    </div>
-                                </div>
-                                
-                                <div class="result-actions">
-                                    <a href="https://wa.me/91${entry.ownerPhone}?text=Hello%20${encodeURIComponent(entry.owner)},%20this%20is%20from%20VPLY" 
-                                       target="_blank" class="whatsapp-btn">
-                                        💬 WhatsApp Owner
-                                    </a>
-                                    <a href="https://wa.me/91${entry.salesmanPhone}?text=Hello%20${encodeURIComponent(entry.salesman)},%20this%20is%20from%20VPLY" 
-                                       target="_blank" class="whatsapp-btn">
-                                        💬 WhatsApp Salesman
-                                    </a>
-                                    <button class="btn" onclick='saveAllFields("${key}")' style="width: auto; min-width: 120px;">
-                                        💾 Save Changes
-                                    </button>
-                                    <button class="btn btn-red" onclick='deleteEntry("${key}")' style="width: auto; min-width: 120px;">
-                                        🗑️ Delete Entry
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                
-                if (count === 0) {
-                    resultDiv.innerHTML = "<p style='text-align: center; color: #92400e; padding: 2rem;'>No matching entries found.</p>";
-                    showToast("No matching entries found.", "error");
-                } else {
-                    resultDiv.innerHTML = output;
-                    showToast(`Found ${count} matching entries!`, "success");
-                }
-            });
-        }
-
-        function saveAllFields(key) {
-            const inputs = document.querySelectorAll(`input[data-key="${key}"]`);
-            const updates = {};
-            
-            inputs.forEach(el => {
-                const field = el.getAttribute("data-field");
-                updates[field] = el.value.trim();
-            });
-            
-            updates.Timestamp = new Date().toLocaleString();
-            
-            db.ref(`entries/${key}`).update(updates, () => {
-                showToast("Entry updated successfully! ✅", "success");
-                sendToSheet(updates);
-            });
-        }
-
-        function deleteEntry(key) {
-            if (confirm("Are you sure you want to delete this entry?")) {
-                db.ref(`entries/${key}`).remove(() => {
-                    showToast("Entry deleted successfully! 🗑️", "success");
-                    searchEntries();
-                });
+            switch (lastAction.action) {
+                case 'add':
+                    // Find and remove the entry (this is tricky since we don't store the key)
+                    // For now, just show a message
+                    showToast('Cannot undo add operation', 'error');
+                    break;
+                    
+                case 'update':
+                    db.ref(`entries/${lastAction.key}`).update(lastAction.originalData, () => {
+                        showToast(t('undo-success'), 'success');
+                    });
+                    break;
+                    
+                case 'delete':
+                    db.ref(`entries/${lastAction.key}`).set(lastAction.data, () => {
+                        showToast(t('undo-success'), 'success');
+                    });
+                    break;
             }
         }
 
+        // Update undo button visibility
+        function updateUndoButton() {
+            const undoBtn = document.getElementById('undo-btn');
+            if (undoStack.length > 0) {
+                undoBtn.classList.remove('hidden');
+            } else {
+                undoBtn.classList.add('hidden');
+            }
+        }
+
+        // Show toast notification
         function showToast(message, type = "info") {
-            // Create toast element
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 1rem 1.5rem;
-                border-radius: 0.75rem;
-                color: white;
-                font-weight: bold;
-                z-index: 9999;
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-                transform: translateX(100%);
-                transition: transform 0.3s ease;
-                max-width: 300px;
-                word-wrap: break-word;
-            `;
-            
-            // Set background based on type
-            switch(type) {
-                case 'success':
-                    toast.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    break;
-                case 'error':
-                    toast.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                    break;
-                case 'info':
-                default:
-                    toast.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-                    break;
-            }
-            
+            toast.className = `toast ${type}`;
             toast.textContent = message;
             document.body.appendChild(toast);
             
-            // Animate in
-            setTimeout(() => {
-                toast.style.transform = 'translateX(0)';
-            }, 10);
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 10);
             
-            // Animate out and remove
+            // Hide and remove toast
             setTimeout(() => {
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
-
-        // Initialize with one product field
-        window.addEventListener('load', () => {
-            addProductField();
-        });
 
         // Handle enter key on password input
         document.addEventListener('DOMContentLoaded', () => {
@@ -942,6 +1925,26 @@
                     }
                 });
             }
+            
+            // Close language dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const languageSelector = document.querySelector('.language-selector');
+                const dropdown = document.getElementById('language-dropdown');
+                
+                if (!languageSelector.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Close search suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                const searchContainer = document.querySelector('.search-container');
+                const suggestions = document.getElementById('search-suggestions');
+                
+                if (!searchContainer.contains(e.target)) {
+                    suggestions.classList.add('hidden');
+                }
+            });
         });
     </script>
 </body>
