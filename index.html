@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1783,6 +1784,28 @@
         // Save data
         function saveData() {
             const saveBtn = event.target;
+            
+            // Validate required fields
+            const company = document.getElementById("company").value.trim();
+            const category = document.getElementById("category").value.trim();
+            const brand = document.getElementById("brand").value.trim();
+            const owner = document.getElementById("owner").value.trim();
+            const ownerPhone = document.getElementById("ownerPhone").value.trim();
+            const address = document.getElementById("address").value.trim();
+            
+            // Check if at least one required field is filled
+            if (!company && !category && !brand && !owner && !ownerPhone && !address) {
+                showToast("Please fill at least one required field (Company, Category, Brand, Owner, Owner Phone, or Address)", "error");
+                return;
+            }
+            
+            // Check if company name is provided (most important field)
+            if (!company) {
+                showToast("Please enter a company name", "error");
+                document.getElementById("company").focus();
+                return;
+            }
+            
             saveBtn.classList.add('loading');
             saveBtn.innerHTML = '⏳ Saving...';
             
@@ -1794,9 +1817,9 @@
             
             const obj = {
                 Timestamp: new Date().toLocaleString(),
-                company: document.getElementById("company").value.trim(),
-                category: document.getElementById("category").value.trim(),
-                brand: document.getElementById("brand").value.trim(),
+                company: company,
+                category: category,
+                brand: brand,
                 product1: products[0] || "",
                 product2: products[1] || "",
                 product3: products[2] || "",
@@ -1807,9 +1830,9 @@
                 product8: products[7] || "",
                 product9: products[8] || "",
                 product10: products[9] || "",
-                address: document.getElementById("address").value.trim(),
-                owner: document.getElementById("owner").value.trim(),
-                ownerPhone: document.getElementById("ownerPhone").value.trim(),
+                address: address,
+                owner: owner,
+                ownerPhone: ownerPhone,
                 ownerEmail: document.getElementById("ownerEmail").value.trim(),
                 salesman: document.getElementById("salesman").value.trim(),
                 salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
@@ -1923,6 +1946,28 @@
             if (!window.editingKey) return;
             
             const saveBtn = event.target;
+            
+            // Validate required fields
+            const company = document.getElementById("company").value.trim();
+            const category = document.getElementById("category").value.trim();
+            const brand = document.getElementById("brand").value.trim();
+            const owner = document.getElementById("owner").value.trim();
+            const ownerPhone = document.getElementById("ownerPhone").value.trim();
+            const address = document.getElementById("address").value.trim();
+            
+            // Check if at least one required field is filled
+            if (!company && !category && !brand && !owner && !ownerPhone && !address) {
+                showToast("Please fill at least one required field (Company, Category, Brand, Owner, Owner Phone, or Address)", "error");
+                return;
+            }
+            
+            // Check if company name is provided (most important field)
+            if (!company) {
+                showToast("Please enter a company name", "error");
+                document.getElementById("company").focus();
+                return;
+            }
+            
             saveBtn.classList.add('loading');
             saveBtn.innerHTML = '⏳ Updating...';
             
@@ -1934,9 +1979,9 @@
             
             const updates = {
                 Timestamp: new Date().toLocaleString(),
-                company: document.getElementById("company").value.trim(),
-                category: document.getElementById("category").value.trim(),
-                brand: document.getElementById("brand").value.trim(),
+                company: company,
+                category: category,
+                brand: brand,
                 product1: products[0] || "",
                 product2: products[1] || "",
                 product3: products[2] || "",
@@ -1947,9 +1992,9 @@
                 product8: products[7] || "",
                 product9: products[8] || "",
                 product10: products[9] || "",
-                address: document.getElementById("address").value.trim(),
-                owner: document.getElementById("owner").value.trim(),
-                ownerPhone: document.getElementById("ownerPhone").value.trim(),
+                address: address,
+                owner: owner,
+                ownerPhone: ownerPhone,
                 ownerEmail: document.getElementById("ownerEmail").value.trim(),
                 salesman: document.getElementById("salesman").value.trim(),
                 salesmanPhone: document.getElementById("salesmanPhone").value.trim(),
