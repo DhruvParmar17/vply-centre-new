@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1634,6 +1633,15 @@
                         </button>
                     </div>
                     
+                    <div class="flex gap-1 mt-1">
+                        <button class="btn btn-green btn-small" onclick="sendCompanyDetails('${key}')" style="flex: 1;">
+                            📤 Send Details
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="generateCompanyDocument('${key}')">
+                            📄 Document
+                        </button>
+                    </div>
+                    
                     <div class="text-center mt-1" style="font-size: 0.75rem; color: var(--text-secondary);">
                         Added: ${entry.Timestamp || 'N/A'}
                     </div>
@@ -2158,6 +2166,397 @@
                 }
             });
         });
+
+        // Send company details to company
+        function sendCompanyDetails(key) {
+            const entry = allEntries[key];
+            if (!entry) {
+                showToast('Company details not found', 'error');
+                return;
+            }
+
+            // Create company details text
+            const details = generateCompanyDetailsText(entry);
+            
+            // Show send options modal
+            showSendOptionsModal(key, details);
+        }
+
+        // Generate company details text
+        function generateCompanyDetailsText(entry) {
+            const products = [];
+            for (let i = 1; i <= 10; i++) {
+                if (entry[`product${i}`]) products.push(entry[`product${i}`]);
+            }
+
+            let details = `🏢 *${entry.company || 'N/A'}*\n\n`;
+            
+            if (entry.category) details += `📂 Category: ${entry.category}\n`;
+            if (entry.brand) details += `🏷️ Brand: ${entry.brand}\n`;
+            if (entry.address) details += `📍 Address: ${entry.address}\n`;
+            if (entry.godown) details += `🏪 Godown: ${entry.godown}\n`;
+            if (entry.gst) details += `📋 GST: ${entry.gst}\n\n`;
+            
+            if (entry.owner) {
+                details += `👤 *Owner Details:*\n`;
+                details += `   Name: ${entry.owner}\n`;
+                if (entry.ownerPhone) details += `   Phone: ${entry.ownerPhone}\n`;
+                if (entry.ownerEmail) details += `   Email: ${entry.ownerEmail}\n\n`;
+            }
+            
+            if (entry.salesman) {
+                details += `👨‍💼 *Salesman Details:*\n`;
+                details += `   Name: ${entry.salesman}\n`;
+                if (entry.salesmanPhone) details += `   Phone: ${entry.salesmanPhone}\n`;
+                if (entry.salesmanEmail) details += `   Email: ${entry.salesmanEmail}\n\n`;
+            }
+            
+            if (products.length > 0) {
+                details += `📦 *Products:*\n`;
+                products.forEach((product, index) => {
+                    details += `   ${index + 1}. ${product}\n`;
+                });
+                details += `\n`;
+            }
+            
+            if (entry.notes) {
+                details += `📝 *Notes:*\n${entry.notes}\n\n`;
+            }
+            
+            details += `📅 Added: ${entry.Timestamp || 'N/A'}\n`;
+            details += `\n---\n*VPLY Centre*\n*Your Trusted Partner in Plywood & Laminates*`;
+            
+            return details;
+        }
+
+        // Show send options modal
+        function showSendOptionsModal(key, details) {
+            const entry = allEntries[key];
+            if (!entry) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: var(--bg-card);
+                border-radius: 1rem;
+                padding: 2rem;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 3px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px var(--shadow-color);
+            `;
+
+            modalContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Send Company Details</h3>
+                    <p style="color: var(--text-secondary);">Choose how to send details for ${entry.company || 'this company'}</p>
+                </div>
+                
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    ${entry.ownerPhone ? `
+                        <button onclick="sendViaWhatsApp('${entry.ownerPhone}', \`${details.replace(/`/g, '\\`')}\`)" 
+                                style="background: linear-gradient(135deg, #25D366 0%, #20B954 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            💬 Send via WhatsApp to Owner
+                        </button>
+                    ` : ''}
+                    
+                    ${entry.salesmanPhone ? `
+                        <button onclick="sendViaWhatsApp('${entry.salesmanPhone}', \`${details.replace(/`/g, '\\`')}\`)" 
+                                style="background: linear-gradient(135deg, #25D366 0%, #20B954 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            💬 Send via WhatsApp to Salesman
+                        </button>
+                    ` : ''}
+                    
+                    ${entry.ownerEmail ? `
+                        <button onclick="sendViaEmail('${entry.ownerEmail}', '${entry.company || 'Company'} Details', \`${details.replace(/`/g, '\\`')}\`)" 
+                                style="background: linear-gradient(135deg, #5B7C99 0%, #4A6B88 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            ✉️ Send via Email to Owner
+                        </button>
+                    ` : ''}
+                    
+                    ${entry.salesmanEmail ? `
+                        <button onclick="sendViaEmail('${entry.salesmanEmail}', '${entry.company || 'Company'} Details', \`${details.replace(/`/g, '\\`')}\`)" 
+                                style="background: linear-gradient(135deg, #5B7C99 0%, #4A6B88 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            ✉️ Send via Email to Salesman
+                        </button>
+                    ` : ''}
+                    
+                    <button onclick="copyToClipboard(\`${details.replace(/`/g, '\\`')}\`)" 
+                            style="background: var(--accent-gradient); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        📋 Copy to Clipboard
+                    </button>
+                    
+                    <button onclick="downloadAsText('${entry.company || 'company'}_details.txt', \`${details.replace(/`/g, '\\`')}\`)" 
+                            style="background: linear-gradient(135deg, #6B8E5A 0%, #5A7D49 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        💾 Download as Text File
+                    </button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button onclick="document.body.removeChild(this.closest('div[style*=\"position: fixed\"]'))" 
+                            style="background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem 1.5rem; border: 2px solid var(--border-color); border-radius: 0.75rem; cursor: pointer; font-weight: bold;">
+                        ❌ Close
+                    </button>
+                </div>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // Send via WhatsApp
+        function sendViaWhatsApp(phone, message) {
+            const whatsappUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            document.body.removeChild(document.querySelector('div[style*="position: fixed"]'));
+            showToast('Opening WhatsApp...', 'success');
+        }
+
+        // Send via Email
+        function sendViaEmail(email, subject, body) {
+            const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoUrl, '_blank');
+            document.body.removeChild(document.querySelector('div[style*="position: fixed"]'));
+            showToast('Opening email client...', 'success');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+                document.body.removeChild(document.querySelector('div[style*="position: fixed"]'));
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Copied to clipboard!', 'success');
+                document.body.removeChild(document.querySelector('div[style*="position: fixed"]'));
+            });
+        }
+
+        // Download as text file
+        function downloadAsText(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('File downloaded!', 'success');
+            document.body.removeChild(document.querySelector('div[style*="position: fixed"]'));
+        }
+
+        // Generate company document
+        function generateCompanyDocument(key) {
+            const entry = allEntries[key];
+            if (!entry) {
+                showToast('Company details not found', 'error');
+                return;
+            }
+
+            // Create formatted document
+            const documentContent = generateFormattedDocument(entry);
+            
+            // Show document preview modal
+            showDocumentPreviewModal(key, documentContent);
+        }
+
+        // Generate formatted document
+        function generateFormattedDocument(entry) {
+            const products = [];
+            for (let i = 1; i <= 10; i++) {
+                if (entry[`product${i}`]) products.push(entry[`product${i}`]);
+            }
+
+            let documentContent = `
+╔══════════════════════════════════════════════════════════════╗
+║                    COMPANY DETAILS DOCUMENT                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+COMPANY INFORMATION:
+═══════════════════
+Company Name: ${entry.company || 'N/A'}
+Category: ${entry.category || 'N/A'}
+Brand: ${entry.brand || 'N/A'}
+Address: ${entry.address || 'N/A'}
+Godown Number: ${entry.godown || 'N/A'}
+GST Number: ${entry.gst || 'N/A'}
+
+CONTACT INFORMATION:
+═══════════════════
+`;
+
+            if (entry.owner) {
+                documentContent += `
+OWNER DETAILS:
+   Name: ${entry.owner}
+   Phone: ${entry.ownerPhone || 'N/A'}
+   Email: ${entry.ownerEmail || 'N/A'}
+`;
+            }
+
+            if (entry.salesman) {
+                documentContent += `
+SALESMAN DETAILS:
+   Name: ${entry.salesman}
+   Phone: ${entry.salesmanPhone || 'N/A'}
+   Email: ${entry.salesmanEmail || 'N/A'}
+`;
+            }
+
+            if (products.length > 0) {
+                documentContent += `
+PRODUCTS:
+═══════════
+`;
+                products.forEach((product, index) => {
+                    documentContent += `   ${index + 1}. ${product}\n`;
+                });
+            }
+
+            if (entry.notes) {
+                documentContent += `
+ADDITIONAL NOTES:
+═══════════════════
+${entry.notes}
+`;
+            }
+
+            if (entry.latitude && entry.longitude) {
+                documentContent += `
+LOCATION:
+═══════════════════
+Coordinates: ${entry.latitude}, ${entry.longitude}
+Google Maps: https://www.google.com/maps?q=${entry.latitude},${entry.longitude}
+`;
+            }
+
+            documentContent += `
+═══════════════════════════════════════════════════════════════
+Document Generated: ${new Date().toLocaleString()}
+Generated by: VPLY Centre
+═══════════════════════════════════════════════════════════════
+`;
+
+            return documentContent;
+        }
+
+        // Show document preview modal
+        function showDocumentPreviewModal(key, documentContent) {
+            const entry = allEntries[key];
+            if (!entry) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: var(--bg-card);
+                border-radius: 1rem;
+                padding: 2rem;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 3px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px var(--shadow-color);
+            `;
+
+            modalContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Company Document</h3>
+                    <p style="color: var(--text-secondary);">Formatted document for ${entry.company || 'this company'}</p>
+                </div>
+                
+                <div style="background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.875rem; white-space: pre-wrap;">
+                    ${documentContent.replace(/\n/g, '<br>')}
+                </div>
+                
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    <button onclick="downloadAsText('${entry.company || 'company'}_document.txt', \`${documentContent.replace(/`/g, '\\`')}\`)" 
+                            style="background: linear-gradient(135deg, #6B8E5A 0%, #5A7D49 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        💾 Download Document
+                    </button>
+                    
+                    <button onclick="copyToClipboard(\`${documentContent.replace(/`/g, '\\`')}\`)" 
+                            style="background: var(--accent-gradient); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        📋 Copy Document
+                    </button>
+                    
+                    <button onclick="printDocument(\`${documentContent.replace(/`/g, '\\`')}\`)" 
+                            style="background: linear-gradient(135deg, #5B7C99 0%, #4A6B88 100%); color: white; padding: 1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        🖨️ Print Document
+                    </button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button onclick="document.body.removeChild(this.closest('div[style*=\"position: fixed\"]'))" 
+                            style="background: var(--bg-secondary); color: var(--text-primary); padding: 0.75rem 1.5rem; border: 2px solid var(--border-color); border-radius: 0.75rem; cursor: pointer; font-weight: bold;">
+                        ❌ Close
+                    </button>
+                </div>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // Print document
+        function printDocument(content) {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Company Document</title>
+                    <style>
+                        body { font-family: monospace; margin: 20px; }
+                        pre { white-space: pre-wrap; }
+                    </style>
+                </head>
+                <body>
+                    <pre>${content}</pre>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+            showToast('Print dialog opened!', 'success');
+        }
     </script>
 </body>
 </html>
